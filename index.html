@@ -49,7 +49,7 @@ main{width:100%;margin:0;padding:8px var(--gap) 96px calc(var(--piz) + 2 * var(-
 .jh-empty{cursor:default}
 .jh-empty.jh-home{outline:1px dashed #BDBDBD;outline-offset:-1px;transition:outline-color .15s,background .15s}
 .jh-empty.jh-home.hot{outline:1px solid #111;background:#FAFAFA}
-.jh-loose{all:unset;position:fixed;box-sizing:border-box;cursor:grab;perspective:2000px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.jh-loose{all:unset;position:fixed;touch-action:none;box-sizing:border-box;cursor:grab;perspective:2000px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .jh-loose .jh-face{border:none;background:transparent;padding:0}
 .jh-loose .jh-img{padding:0}
 .jh-loose:focus-visible{outline:1px dashed #9A9A9A;outline-offset:4px}
@@ -109,6 +109,22 @@ footer a{text-decoration:none}
 .jh-cart-note{font-size:9px;letter-spacing:.1em;color:#555;font-weight:300;text-align:center}
 @keyframes jhFade{from{opacity:0}to{opacity:1}}
 @keyframes jhZoom{from{transform:scale(.82);opacity:0}to{transform:scale(1);opacity:1}}
+/* ---- bandeja ARMÁ TU LOOK (solo celular) ---- */
+.jh-tray{display:none}
+body.is-mobile .jh-tray{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:5;flex-direction:column;background:#fff;border-top:1px solid #C8C8C8;height:52px;transition:height .35s cubic-bezier(.2,.7,.2,1);touch-action:none}
+body.is-mobile.look-open .jh-tray{height:68vh}
+.jh-tray-bar{all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:12px;height:52px;padding:0 16px;flex-shrink:0;cursor:pointer}
+.jh-tray-bar .jh-cap{font-size:10px}
+.jh-tray-bar svg{transition:transform .35s ease}
+body.look-open .jh-tray-bar svg{transform:rotate(180deg)}
+.jh-tray-area{flex:1;margin:0 9px 9px;border:1px solid #C8C8C8;display:none;position:relative}
+body.look-open .jh-tray-area{display:block}
+.jh-tray-hint{position:absolute;left:0;right:0;top:45%;text-align:center;font-size:9px;letter-spacing:.12em;color:#8A8A8A;font-weight:300;padding:0 24px}
+.jh-tray.hot .jh-tray-bar{background:#F7941D}
+.jh-tray.hot{border-top-color:#F7941D}
+body.is-mobile:not(.look-open) .jh-loose:not(.jh-lifted){display:none}
+body.is-mobile main{padding-bottom:84px}
+body.is-mobile .jh-cap{white-space:normal;font-size:7px}
 @media (max-width:820px){
 header,main,footer{padding-left:16px;padding-right:16px}
 main{padding-left:16px}
@@ -168,6 +184,13 @@ main{padding-left:16px}
 <button type="button" class="jh-add" id="ovAdd">AGREGAR AL CARRITO</button>
 </div>
 </div>
+</div>
+<div class="jh-tray" id="tray">
+<button type="button" class="jh-tray-bar" id="trayBar" aria-expanded="false">
+<span class="jh-cap">ARMÁ TU <b>LOOK</b> <span id="trayCount"></span></span>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.5" aria-hidden="true"><path d="M5 15l7-7 7 7"/></svg>
+</button>
+<div class="jh-tray-area" id="trayArea"><span class="jh-tray-hint" id="trayHint">MANTENÉ APRETADA UNA PRENDA Y ARRASTRALA ACÁ</span></div>
 </div>
 <div class="jh-cart-bg" id="cartBg"></div>
 <aside class="jh-cart" id="cart" role="dialog" aria-modal="true" aria-label="Carrito">
@@ -258,7 +281,7 @@ if (dfs()) return order;
 }
 return null;
 }
-var ORDER = randomOrder(12) || DEFAULT_ORDER;
+var ORDER = randomOrder(window.innerWidth <= 820 ? 6 : 12) || DEFAULT_ORDER;
 
 var board = document.getElementById('board'), grid = document.getElementById('grid');
 var flipped = false, cols = 0, z = 10, free = {}, cards = {}, loose = {};
@@ -272,7 +295,7 @@ function mobileW(w) { return w >= 4 ? 6 : w === 3 ? 3 : 2; }
 function pack(cols) {
 var taken = {}, pl = {};
 ORDER.forEach(function (id) {
-var it = BY[id], w = Math.min(cols, cols === 12 ? it.w : mobileW(it.w)), h = it.h, r = 0, c, found = false;
+var it = BY[id], w = Math.min(cols, it.w), h = it.h, r = 0, c, found = false;
 function fits(r, c) { if (c + w > cols) return false; for (var i = 0; i < h; i++) for (var k = 0; k < w; k++) if (taken[(r + i) * 64 + c + k]) return false; return true; }
 while (!found) { for (c = 0; c <= cols - w; c++) { if (fits(r, c)) { found = true; break; } } if (!found) r++; }
 pl[id] = { r: r, c: c, w: w, h: h };
@@ -293,7 +316,10 @@ grid.appendChild(el); cards[id] = el;
 function layout() {
 var nc = window.innerWidth <= 820 ? 6 : 12;
 if (nc === cols) return;
+var changed = cols !== 0;
 cols = nc; clearLoose(false);
+if (changed) ORDER = randomOrder(cols) || DEFAULT_ORDER;
+document.body.classList.toggle('is-mobile', cols === 6);
 var pl = pack(cols);
 ORDER.forEach(function (id) { var p = pl[id]; cards[id].style.gridColumn = (p.c + 1) + ' / span ' + p.w; cards[id].style.gridRow = (p.r + 1) + ' / span ' + p.h; });
 }
@@ -311,8 +337,8 @@ pizL.style.left = GAP + 'px'; pizL.style.width = (br.left - 2 * GAP) + 'px';
 window.addEventListener('scroll', placePizarras, { passive: true });
 function setRows() {
 // recuadros cuadrados: el alto de cada fila es igual al ancho de una columna
-if (cols !== 12) { grid.style.gridAutoRows = ''; return; }
-grid.style.gridAutoRows = ((grid.clientWidth - 11 * GAP) / 12) + 'px';
+var g = parseFloat(getComputedStyle(grid).columnGap) || GAP;
+grid.style.gridAutoRows = ((grid.clientWidth - (cols - 1) * g) / cols) + 'px';
 }
 window.addEventListener('resize', function () { layout(); setRows(); placePizarras(); applyScale(); });
 
@@ -389,7 +415,7 @@ el.type = 'button'; el.className = 'jh-loose'; el.setAttribute('data-jh-id', id)
 el.innerHTML = '<div class="jh-inner"><div class="jh-face"><div class="jh-img"><img src="' + x.f + '" alt="" draggable="false"></div></div>' +
 '<div class="jh-face jh-back"><div class="jh-img"><img src="' + (x.b || x.f) + '" alt="" draggable="false"></div></div></div>';
 el.addEventListener('click', function (e) { if (e.detail === 0) openItem(id); });
-el.addEventListener('dblclick', function () { clearTimeout(openTimer); returnHome(id, true); });
+el.addEventListener('dblclick', function () { clearTimeout(openTimer); returnHome(id, true); updateTray(); });
 free[id] = { x: rect.left, y: rect.top, w: rect.width, h: rect.height };
 el.style.left = free[id].x + 'px'; el.style.top = free[id].y + 'px'; el.style.width = rect.width + 'px'; el.style.height = rect.height + 'px';
 board.appendChild(el); loose[id] = el;
@@ -422,7 +448,29 @@ card.animate([{ transform: 'translate(' + (from.left - to.left) + 'px,' + (from.
 }
 });
 }
-document.getElementById('resetBtn').addEventListener('click', function () { clearLoose(true); });
+document.getElementById('resetBtn').addEventListener('click', function () { clearLoose(true); if (typeof updateTray === 'function') updateTray(); });
+
+// ---- bandeja ARMÁ TU LOOK (celular): se arrastran prendas ahí y se abre como pizarra
+var tray = document.getElementById('tray'), trayBar = document.getElementById('trayBar'), trayArea = document.getElementById('trayArea');
+function isMobile() { return cols === 6; }
+function setLookOpen(open) {
+document.body.classList.toggle('look-open', open);
+trayBar.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+function updateTray() {
+var n = Object.keys(loose).length;
+document.getElementById('trayCount').textContent = n ? '(' + n + ')' : '';
+document.getElementById('trayHint').style.display = n ? 'none' : '';
+}
+trayBar.addEventListener('click', function () { setLookOpen(!document.body.classList.contains('look-open')); });
+function overTray(x, y) { var r = tray.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; }
+function placeInTray(id) {
+// deja la prenda dentro de la pizarra (si se soltó sobre la barra, va al centro)
+var a = trayArea.getBoundingClientRect(), f = free[id], el = loose[id];
+var nx = Math.min(Math.max(f.x, a.left + 6), a.right - f.w - 6), ny = Math.min(Math.max(f.y, a.top + 6), a.bottom - f.h - 6);
+if (f.y < a.top) { nx = a.left + (a.width - f.w) / 2; ny = a.top + (a.height - f.h) / 2; }
+f.x = nx; f.y = ny; el.style.left = nx + 'px'; el.style.top = ny + 'px';
+}
 
 var p = null, holdTimer = null, openTimer = null;
 board.addEventListener('pointerdown', function (e) {
@@ -431,7 +479,8 @@ var el = hitTest(e.clientX, e.clientY);
 if (!el) return;
 p = { id: el.getAttribute('data-jh-id'), el: el, x0: e.clientX, y0: e.clientY, active: false, touch: e.pointerType === 'touch' };
 clearTimeout(holdTimer);
-if (p.touch) holdTimer = setTimeout(function () { if (p && !p.cancelled) lift(p.x0, p.y0); }, 320);
+if (p.touch && el.classList.contains('jh-loose')) { e.preventDefault(); lift(p.x0, p.y0); }
+else if (p.touch) holdTimer = setTimeout(function () { if (p && !p.cancelled) lift(p.x0, p.y0); }, 320);
 });
 function lift(x, y) {
 var el;
@@ -462,6 +511,7 @@ f.x = nx; f.y = ny; p.loose.style.left = nx + 'px'; p.loose.style.top = ny + 'px
 var hr = cards[p.id].getBoundingClientRect();
 p.home = e.clientX >= hr.left && e.clientX <= hr.right && e.clientY >= hr.top && e.clientY <= hr.bottom;
 cards[p.id].classList.toggle('hot', p.home);
+if (isMobile()) { p.tray = overTray(e.clientX, e.clientY); tray.classList.toggle('hot', p.tray && !document.body.classList.contains('look-open')); }
 });
 window.addEventListener('touchmove', function (e) { if (p && p.active) e.preventDefault(); }, { passive: false });
 function up() {
@@ -471,7 +521,15 @@ var q = p; p = null;
 if (q.active) {
 q.loose.classList.remove('jh-lifted');
 cards[q.id].classList.remove('jh-home', 'hot');
-if (q.home) returnHome(q.id, true);
+if (q.home) { returnHome(q.id, true); updateTray(); return; }
+if (isMobile()) {
+tray.classList.remove('hot');
+if (q.tray) {
+if (!document.body.classList.contains('look-open')) { setLookOpen(true); setTimeout(function () { if (loose[q.id]) placeInTray(q.id); }, 380); }
+else placeInTray(q.id);
+} else returnHome(q.id, true);
+updateTray();
+}
 return;
 }
 if (q.cancelled) return;
