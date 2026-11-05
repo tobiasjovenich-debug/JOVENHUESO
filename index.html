@@ -38,6 +38,9 @@ main{width:100%;margin:0;padding:8px var(--gap) 96px calc(var(--piz) + 2 * var(-
 .jh-face .jh-cap{position:relative;z-index:1}
 .jh-pizarra{position:fixed;z-index:1;box-sizing:border-box;border:1px solid #C8C8C8;background:#fff;padding:7px 9px;pointer-events:none;display:none}
 .jh-pizarra.on{display:block}
+.jh-pizarra .jh-tray-actions{display:flex;position:absolute;left:9px;right:9px;bottom:9px;padding:0;pointer-events:auto}
+.jh-pizarra .jh-tray-actions .jh-wa,.jh-pizarra .jh-tray-actions .jh-add{min-height:40px;font-size:9px;padding:0 10px}
+.jh-pizarra .jh-tray-hint{top:40%}
 .jh-empty .jh-inner{visibility:hidden}
 .jh-dot{position:absolute;top:9px;right:9px;width:6px;height:6px;border-radius:50%;background:#F7941D;z-index:2;display:none}
 .jh-incart .jh-face .jh-dot{display:block}
@@ -174,7 +177,7 @@ main{padding-left:16px}
 </header>
 <main>
 <div class="jh-board" id="board">
-<div class="jh-pizarra" id="pizL" aria-hidden="true"><span class="jh-cap">ARMÁ TU <b>LOOK</b></span></div>
+<div class="jh-pizarra" id="pizL"><span class="jh-cap">ARMÁ TU <b>LOOK</b> <span id="pizCount"></span></span><span class="jh-tray-hint" id="pizHint">ARRASTRÁ PRENDAS ACÁ PARA ARMAR TU LOOK</span></div>
 <div class="jh-grid" id="grid"></div>
 </div>
 </main>
@@ -366,6 +369,8 @@ var changed = cols !== 0;
 cols = nc; clearLoose(false);
 if (changed) ORDER = randomOrder(cols) || DEFAULT_ORDER;
 document.body.classList.toggle('is-mobile', cols === 6);
+var acts = document.getElementById('trayActions');
+if (acts) (cols === 6 ? document.getElementById('tray') : document.getElementById('pizL')).appendChild(acts);
 var pl = pack(cols);
 ORDER.forEach(function (id) { var p = pl[id]; cards[id].style.gridColumn = (p.c + 1) + ' / span ' + p.w; cards[id].style.gridRow = (p.r + 1) + ' / span ' + p.h; });
 }
@@ -510,9 +515,17 @@ if (!open) document.body.classList.remove('look-full');
 if (open) followTray(450);
 trayBar.setAttribute('aria-expanded', open ? 'true' : 'false');
 }
-function lookIds() { return Object.keys(loose); }
+function lookIds() {
+if (isMobile()) return Object.keys(loose);
+var pr = pizL.getBoundingClientRect();
+return Object.keys(loose).filter(function (id) {
+var r = loose[id].getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+return cx >= pr.left && cx <= pr.right && cy >= pr.top && cy <= pr.bottom;
+});
+}
 function updateTray() {
-var n = Object.keys(loose).length;
+var n = lookIds().length;
+if (!isMobile()) { document.getElementById('pizCount').textContent = n ? '(' + n + ')' : ''; document.getElementById('pizHint').style.display = n ? 'none' : ''; }
 tray.classList.toggle('has-items', n > 0);
 var avail = lookIds().filter(function (id) { return !BY[id].sold; });
 var toAdd = avail.filter(function (id) { return cart.indexOf(id) < 0; });
@@ -715,6 +728,7 @@ if (q.active) {
 q.loose.classList.remove('jh-lifted');
 cards[q.id].classList.remove('jh-home', 'hot');
 if (q.home) { returnHome(q.id, true); updateTray(); return; }
+if (!isMobile()) updateTray();
 if (isMobile()) {
 tray.classList.remove('hot');
 if (q.tray) {
