@@ -64,6 +64,36 @@ footer a{text-decoration:none}
 .jh-arrow[hidden]{display:none}
 .jh-wa{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 28px;margin-top:12px;background:#111;color:#fff;text-decoration:none;font-weight:600;font-size:10px;letter-spacing:.14em}
 .jh-wa:hover{background:#F7941D;color:#111}
+.jh-icon{position:relative}
+.jh-badge{position:absolute;top:6px;right:5px;min-width:15px;height:15px;padding:0 4px;box-sizing:border-box;border-radius:8px;background:#111;color:#fff;font-size:9px;font-weight:600;line-height:15px;text-align:center;display:none}
+.jh-badge.on{display:block}
+.jh-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+.jh-actions .jh-wa{margin-top:0}
+.jh-add{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 28px;background:#fff;color:#111;border:1px solid #111;cursor:pointer;font:inherit;font-weight:600;font-size:10px;letter-spacing:.14em}
+.jh-add:hover{background:#111;color:#fff}
+.jh-add.in{border-color:#C8C8C8;color:#555}
+.jh-add.in:hover{background:#fff;color:#111;border-color:#111}
+.jh-add:focus-visible{outline:2px solid #111;outline-offset:2px}
+.jh-cart-bg{position:fixed;inset:0;z-index:60;background:rgba(255,255,255,.6);display:none}
+.jh-cart-bg.open{display:block}
+.jh-cart{position:fixed;top:0;right:0;bottom:0;z-index:61;width:min(380px,100vw);background:#fff;border-left:1px solid #C8C8C8;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .35s cubic-bezier(.2,.7,.2,1);visibility:hidden}
+.jh-cart.open{transform:none;visibility:visible}
+.jh-cart-head{display:flex;justify-content:space-between;align-items:center;padding:14px 12px 14px 20px;border-bottom:1px solid #C8C8C8}
+.jh-cart-list{flex:1;overflow-y:auto;padding:8px 20px;margin:0;list-style:none}
+.jh-cart-list li{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #EDEDED}
+.jh-cart-list .th{width:64px;height:64px;border:1px solid #E2E2E2;display:flex;align-items:center;justify-content:center}
+.jh-cart-list .th img{max-width:80%;max-height:80%;object-fit:contain}
+.jh-cart-list .nm{display:flex;flex-direction:column;gap:4px;min-width:0}
+.jh-cart-list .nm .jh-cap{font-size:9px;white-space:normal}
+.jh-cart-list .pr{font-size:10px;letter-spacing:.08em;font-weight:300}
+.jh-x{all:unset;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
+.jh-x:hover{background:#F2F2F2}
+.jh-x:focus-visible{outline:2px solid #111}
+.jh-cart-empty{padding:40px 20px;font-size:10px;letter-spacing:.12em;color:#555;font-weight:300;text-align:center}
+.jh-cart-foot{padding:16px 20px 22px;border-top:1px solid #C8C8C8;display:flex;flex-direction:column;gap:10px}
+.jh-cart-foot .jh-wa{margin-top:0;width:100%;box-sizing:border-box}
+.jh-cart-foot .jh-wa[aria-disabled="true"]{background:#C8C8C8;pointer-events:none}
+.jh-cart-note{font-size:9px;letter-spacing:.1em;color:#555;font-weight:300;text-align:center}
 @keyframes jhFade{from{opacity:0}to{opacity:1}}
 @keyframes jhZoom{from{transform:scale(.82);opacity:0}to{transform:scale(1);opacity:1}}
 @media (max-width:820px){
@@ -80,6 +110,10 @@ header,main,footer{padding-left:16px;padding-right:16px}
 <div class="tools">
 <button type="button" class="jh-icon" id="flipBtn" aria-pressed="false" aria-label="Dar vuelta las prendas" title="Dar vuelta">
 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 0 1 14.6-5.9L20.5 8.5"/><path d="M20.5 3.5v5h-5"/><path d="M20.5 12a8.5 8.5 0 0 1-14.6 5.9L3.5 15.5"/><path d="M3.5 20.5v-5h5"/></svg>
+</button>
+<button type="button" class="jh-icon" id="cartBtn" aria-label="Abrir carrito" title="Carrito">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 12.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8z"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10"/></svg>
+<span class="jh-badge" id="cartCount"></span>
 </button>
 <button type="button" class="jh-icon" id="resetBtn" aria-label="Volver al orden original" title="Orden original">
 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7.5" height="10"/><rect x="13.5" y="3" width="7.5" height="5.5"/><rect x="3" y="16" width="7.5" height="5"/><path d="M13.5 17.5a4 4 0 1 0 1.2-2.9"/><path d="M13.3 12.6v2.4h2.4"/></svg>
@@ -115,9 +149,24 @@ header,main,footer{padding-left:16px;padding-right:16px}
 <span class="jh-cap" style="font-size:11px" id="ovName"></span>
 <span style="font-size:11px;letter-spacing:.08em;font-weight:300" id="ovPrice"></span>
 <span style="font-size:9px;letter-spacing:.12em;color:#555;font-weight:300" id="ovDetail"></span>
-<a class="jh-wa" id="ovWa" href="#">CONSULTAR POR WHATSAPP</a>
+<div class="jh-actions">
+<a class="jh-wa" id="ovWa" href="#" target="_blank" rel="noopener">CONSULTAR POR WHATSAPP</a>
+<button type="button" class="jh-add" id="ovAdd">AGREGAR AL CARRITO</button>
 </div>
 </div>
+</div>
+<div class="jh-cart-bg" id="cartBg"></div>
+<aside class="jh-cart" id="cart" role="dialog" aria-modal="true" aria-label="Carrito">
+<div class="jh-cart-head">
+<span class="jh-cap" style="font-size:10px">CARRITO <b id="cartTitleCount"></b></span>
+<button type="button" class="jh-x" id="cartClose" aria-label="Cerrar carrito"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.4" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
+</div>
+<ul class="jh-cart-list" id="cartList"></ul>
+<div class="jh-cart-foot">
+<a class="jh-wa" id="cartWa" href="#" target="_blank" rel="noopener">CONSULTAR TODO POR WHATSAPP</a>
+<span class="jh-cart-note">PIEZAS ÚNICAS · TE RESPONDEMOS POR WHATSAPP</span>
+</div>
+</aside>
 <script>
 (function () {
 var WHATSAPP = '549XXXXXXXXXX';
@@ -400,11 +449,62 @@ document.getElementById('ovPrice').textContent = x.price;
 document.getElementById('ovDetail').textContent = x.revista ? 'FORMATO ' + x.size + ' · EDICIÓN IMPRESA' : 'TALLE ' + x.size + ' · PIEZA ÚNICA';
 document.getElementById('ovWa').href = waLink('Hola JOVENHUESO! Me interesa ' + x.name + ' by ' + x.brand + '. ¿Sigue disponible?');
 ov.setAttribute('aria-label', x.name + ' by ' + x.brand);
+syncAddBtn();
 }
 function openItem(id) { cur = id; side = 0; renderOv(); ov.classList.add('open'); document.getElementById('ovClose').focus(); }
 document.getElementById('ovClose').addEventListener('click', function () { ov.classList.remove('open'); if (cards[cur]) cards[cur].focus(); });
 document.getElementById('ovPrev').addEventListener('click', function () { side--; renderOv(); });
 document.getElementById('ovNext').addEventListener('click', function () { side++; renderOv(); });
+
+// ---- carrito: se guarda en este navegador, para no perderlo al recargar
+var cart = [];
+try { cart = JSON.parse(localStorage.getItem('jh-cart') || '[]').filter(function (id) { return BY[id]; }); } catch (err) { cart = []; }
+function saveCart() { try { localStorage.setItem('jh-cart', JSON.stringify(cart)); } catch (err) {} }
+var cartEl = document.getElementById('cart'), cartBg = document.getElementById('cartBg');
+function renderCart() {
+var n = cart.length, badge = document.getElementById('cartCount');
+badge.textContent = n; badge.classList.toggle('on', n > 0);
+document.getElementById('cartBtn').setAttribute('aria-label', 'Abrir carrito (' + n + (n === 1 ? ' prenda)' : ' prendas)'));
+document.getElementById('cartTitleCount').textContent = n ? '(' + n + ')' : '';
+var list = document.getElementById('cartList');
+if (!n) { list.innerHTML = '<li class="jh-cart-empty" style="display:block;border:0">TU CARRITO ESTÁ VACÍO.<br><br>ABRÍ UNA PRENDA Y TOCÁ “AGREGAR AL CARRITO”.</li>'; }
+else list.innerHTML = cart.map(function (id) {
+var x = BY[id];
+return '<li><div class="th"><img src="' + x.f + '" alt=""></div><div class="nm"><span class="jh-cap">' + cap(x) + '</span><span class="pr">' + esc(x.price) + '</span></div>' +
+'<button type="button" class="jh-x" data-rm="' + id + '" aria-label="Quitar ' + esc(x.name + ' by ' + x.brand) + ' del carrito"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.4" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg></button></li>';
+}).join('');
+var wa = document.getElementById('cartWa');
+if (n) {
+var msg = 'Hola JOVENHUESO! Me interesan estas prendas, ¿siguen disponibles?\n' + cart.map(function (id) { var x = BY[id]; return '- ' + x.name + ' by ' + x.brand; }).join('\n');
+wa.href = waLink(msg); wa.removeAttribute('aria-disabled'); wa.removeAttribute('tabindex');
+} else { wa.href = '#'; wa.setAttribute('aria-disabled', 'true'); wa.setAttribute('tabindex', '-1'); }
+if (cur) syncAddBtn();
+}
+function syncAddBtn() {
+var b = document.getElementById('ovAdd'), inCart = cart.indexOf(cur) >= 0;
+b.classList.toggle('in', inCart);
+b.textContent = inCart ? 'EN EL CARRITO ✓  QUITAR' : 'AGREGAR AL CARRITO';
+}
+document.getElementById('ovAdd').addEventListener('click', function () {
+var i = cart.indexOf(cur);
+if (i >= 0) cart.splice(i, 1); else cart.push(cur);
+saveCart(); renderCart();
+});
+document.getElementById('cartList').addEventListener('click', function (e) {
+var b = e.target.closest('[data-rm]'); if (!b) return;
+cart.splice(cart.indexOf(b.getAttribute('data-rm')), 1); saveCart(); renderCart();
+});
+function openCart() { renderCart(); cartEl.classList.add('open'); cartBg.classList.add('open'); document.getElementById('cartClose').focus(); }
+function closeCart() { cartEl.classList.remove('open'); cartBg.classList.remove('open'); document.getElementById('cartBtn').focus(); }
+document.getElementById('cartBtn').addEventListener('click', openCart);
+document.getElementById('cartClose').addEventListener('click', closeCart);
+cartBg.addEventListener('click', closeCart);
+document.addEventListener('keydown', function (e) {
+if (e.key !== 'Escape') return;
+if (cartEl.classList.contains('open')) closeCart();
+else if (ov.classList.contains('open')) document.getElementById('ovClose').click();
+});
+renderCart();
 
 layout();
 placePizarras();
