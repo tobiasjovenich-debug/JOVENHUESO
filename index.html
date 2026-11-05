@@ -128,6 +128,9 @@ footer a{text-decoration:none}
 .jh-cart-foot{padding:16px 20px 22px;border-top:1px solid #C8C8C8;display:flex;flex-direction:column;gap:10px}
 .jh-cart-foot .jh-wa{margin-top:0;width:100%;box-sizing:border-box}
 .jh-cart-foot .jh-wa[aria-disabled="true"]{background:#C8C8C8;pointer-events:none}
+.jh-cart-total{display:flex;justify-content:space-between;align-items:baseline;font-size:10px;letter-spacing:.14em;padding-bottom:6px}
+.jh-cart-total b{font-size:13px;letter-spacing:.06em;font-weight:600}
+.jh-cart-total small{display:block;font-size:8px;letter-spacing:.1em;color:#555;font-weight:300;margin-top:4px}
 .jh-cart-note{font-size:9px;letter-spacing:.1em;color:#555;font-weight:300;text-align:center}
 @keyframes jhFade{from{opacity:0}to{opacity:1}}
 @keyframes jhZoom{from{transform:scale(.82);opacity:0}to{transform:scale(1);opacity:1}}
@@ -242,6 +245,7 @@ main{padding-left:16px}
 </div>
 <ul class="jh-cart-list" id="cartList"></ul>
 <div class="jh-cart-foot">
+<div class="jh-cart-total" id="cartTotal"></div>
 <a class="jh-wa" id="cartWa" href="#" target="_blank" rel="noopener">CONSULTAR TODO POR INSTAGRAM</a>
 <span class="jh-cart-note">TE RESPONDEMOS POR INSTAGRAM</span>
 </div>
@@ -920,9 +924,15 @@ var x = BY[id];
 return '<li><div class="th"><img src="' + x.f + '" alt=""></div><div class="nm"><span class="jh-cap">' + cap(x) + '</span><span class="pr">' + esc(x.price) + '</span></div>' +
 '<button type="button" class="jh-x" data-rm="' + id + '" aria-label="Quitar ' + esc(x.name + ' by ' + x.brand) + ' del carrito"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.4" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg></button></li>';
 }).join('');
+// total del carrito (las prendas sin precio cargado se aclaran aparte)
+var total = 0, sinPrecio = 0;
+cart.forEach(function (id) { var v = parseInt(String(BY[id].price).replace(/[^0-9]/g, ''), 10); if (v) total += v; else sinPrecio++; });
+var tot = document.getElementById('cartTotal');
+tot.style.display = n ? '' : 'none';
+tot.innerHTML = '<span>TOTAL' + (sinPrecio ? '<small>+ ' + sinPrecio + (sinPrecio === 1 ? ' PRENDA' : ' PRENDAS') + ' A CONSULTAR</small>' : '') + '</span><b>$ ' + total.toLocaleString('es-AR') + '</b>';
 var wa = document.getElementById('cartWa');
 if (n) {
-var msg = 'Hola JOVENHUESO! Me interesan estas prendas, ¿siguen disponibles?\n' + cart.map(function (id) { var x = BY[id]; return '- ' + x.name + ' by ' + x.brand; }).join('\n');
+var msg = 'Hola JOVENHUESO! Me interesan estas prendas, ¿siguen disponibles?\n' + cart.map(function (id) { var x = BY[id]; return '- ' + x.name + ' by ' + x.brand + ' (' + x.price.toLowerCase() + ')'; }).join('\n') + '\nTotal: $ ' + total.toLocaleString('es-AR');
 setConsult(wa, msg); wa.removeAttribute('aria-disabled'); wa.removeAttribute('tabindex');
 } else { wa.href = '#'; wa.setAttribute('aria-disabled', 'true'); wa.setAttribute('tabindex', '-1'); }
 if (cur) syncAddBtn();
