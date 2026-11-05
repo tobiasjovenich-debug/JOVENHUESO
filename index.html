@@ -38,6 +38,13 @@ main{width:100%;max-width:1220px;margin:0 auto;padding:8px 32px 96px}
 .jh-pizarra{position:fixed;z-index:1;box-sizing:border-box;border:1px solid #C8C8C8;background:#fff;padding:7px 9px;pointer-events:none;display:none}
 .jh-pizarra.on{display:block}
 .jh-empty .jh-inner{visibility:hidden}
+.jh-dot{position:absolute;top:9px;right:9px;width:6px;height:6px;border-radius:50%;background:#F7941D;z-index:2;display:none}
+.jh-incart .jh-face .jh-dot{display:block}
+#cartBtn svg path{transition:fill .3s ease,stroke .3s ease}
+#cartBtn.full svg path{fill:#F7941D;stroke:#F7941D}
+#cartBtn.full svg path + path{fill:none}
+#cartBtn.pop svg{animation:jhPop .45s cubic-bezier(.2,.7,.2,1)}
+@keyframes jhPop{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
 .jh-empty{cursor:default}
 .jh-loose{all:unset;position:fixed;box-sizing:border-box;cursor:grab;perspective:2000px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .jh-loose .jh-face{border:none;background:transparent;padding:0}
@@ -269,8 +276,8 @@ var x = BY[id];
 var el = document.createElement('button');
 el.type = 'button'; el.className = 'jh-card'; el.setAttribute('data-jh-id', id); el.setAttribute('aria-label', x.name + ' by ' + x.brand);
 el.innerHTML = '<div class="jh-inner" style="transition-delay:' + (i * 0.025).toFixed(3) + 's">' +
-'<div class="jh-face"><span class="jh-cap">' + cap(x) + '</span><div class="jh-img"><img src="' + x.f + '" alt="" draggable="false"></div></div>' +
-'<div class="jh-face jh-back"><span class="jh-cap">' + cap(x) + '</span><div class="jh-img"><img src="' + (x.b || x.f) + '" alt="" draggable="false"></div></div></div>';
+'<div class="jh-face"><span class="jh-dot"></span><span class="jh-cap">' + cap(x) + '</span><div class="jh-img"><img src="' + x.f + '" alt="" draggable="false"></div></div>' +
+'<div class="jh-face jh-back"><span class="jh-dot"></span><span class="jh-cap">' + cap(x) + '</span><div class="jh-img"><img src="' + (x.b || x.f) + '" alt="" draggable="false"></div></div></div>';
 el.addEventListener('click', function (e) { if (e.detail === 0) openItem(id); });
 grid.appendChild(el); cards[id] = el;
 });
@@ -461,7 +468,13 @@ var cart = [];
 try { cart = JSON.parse(localStorage.getItem('jh-cart') || '[]').filter(function (id) { return BY[id]; }); } catch (err) { cart = []; }
 function saveCart() { try { localStorage.setItem('jh-cart', JSON.stringify(cart)); } catch (err) {} }
 var cartEl = document.getElementById('cart'), cartBg = document.getElementById('cartBg');
+function markCart() {
+// puntito naranja en el recuadro de las prendas que están en el carrito
+ORDER.forEach(function (id) { cards[id].classList.toggle('jh-incart', cart.indexOf(id) >= 0); });
+document.getElementById('cartBtn').classList.toggle('full', cart.length > 0);
+}
 function renderCart() {
+markCart();
 var n = cart.length, badge = document.getElementById('cartCount');
 badge.textContent = n; badge.classList.toggle('on', n > 0);
 document.getElementById('cartBtn').setAttribute('aria-label', 'Abrir carrito (' + n + (n === 1 ? ' prenda)' : ' prendas)'));
@@ -489,6 +502,7 @@ document.getElementById('ovAdd').addEventListener('click', function () {
 var i = cart.indexOf(cur);
 if (i >= 0) cart.splice(i, 1); else cart.push(cur);
 saveCart(); renderCart();
+if (i < 0) { var cb = document.getElementById('cartBtn'); cb.classList.remove('pop'); void cb.offsetWidth; cb.classList.add('pop'); }
 });
 document.getElementById('cartList').addEventListener('click', function (e) {
 var b = e.target.closest('[data-rm]'); if (!b) return;
