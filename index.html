@@ -127,6 +127,8 @@ body.look-open .jh-tray.hot .jh-tray-bar{background:#fff}
 body.look-open .jh-tray.hot .jh-tray-area{border-color:#111}
 body.is-mobile:not(.look-open) .jh-loose:not(.jh-lifted){display:none}
 body.is-mobile main{padding-bottom:84px}
+/* con la pizarra abierta, la página suma ese alto abajo para poder scrollear hasta la última prenda */
+body.is-mobile.look-open main{padding-bottom:calc(62vh + 24px)}
 body.is-mobile .jh-cap{white-space:normal;font-size:7px}
 @media (max-width:820px){
 header,main,footer{padding-left:16px;padding-right:16px}
