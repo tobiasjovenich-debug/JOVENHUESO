@@ -131,7 +131,9 @@ body.look-full .jh-tray-bar svg{transform:rotate(180deg)}
 .jh-tray-area{flex:1;margin:0 9px 9px;border:1px solid #C8C8C8;display:none;position:relative}
 body.look-open .jh-tray-area{display:block}
 .jh-tray-hint{position:absolute;left:0;right:0;top:45%;text-align:center;font-size:9px;letter-spacing:.12em;color:#8A8A8A;font-weight:300;padding:0 24px}
-.jh-tray.hot .jh-tray-bar{background:#F7941D}
+.jh-tray.hot .jh-tray-bar,body:not(.look-open) .jh-tray.has-items .jh-tray-bar{background:#F7941D}
+.jh-toast{position:fixed;left:50%;bottom:72px;transform:translate(-50%,20px);z-index:80;background:#111;color:#fff;font-size:9px;letter-spacing:.14em;font-weight:600;padding:12px 16px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;max-width:calc(100vw - 32px);text-align:center}
+.jh-toast.on{opacity:1;transform:translate(-50%,0)}
 .jh-tray.hot{border-top-color:#F7941D}
 body.look-open .jh-tray.hot .jh-tray-bar{background:#fff}
 body.look-open .jh-tray.hot .jh-tray-area{border-color:#111}
@@ -171,10 +173,6 @@ main{padding-left:16px}
 <div class="jh-grid" id="grid"></div>
 </div>
 </main>
-<footer>
-<a href="https://www.instagram.com/jovenhueso.revista/" target="_blank" rel="noopener">INSTAGRAM</a>
-<a id="waFooter" href="#">WHATSAPP</a>
-</footer>
 <div class="jh-ov" id="ov" role="dialog" aria-modal="true">
 <div class="jh-ov-top">
 <span></span>
@@ -195,7 +193,7 @@ main{padding-left:16px}
 <span class="jh-sold">VENDIDO</span>
 <span style="font-size:9px;letter-spacing:.12em;color:#555;font-weight:300" id="ovDetail"></span>
 <div class="jh-actions">
-<a class="jh-wa" id="ovWa" href="#" target="_blank" rel="noopener">CONSULTAR POR WHATSAPP</a>
+<a class="jh-wa" id="ovWa" href="#" target="_blank" rel="noopener">CONSULTAR POR INSTAGRAM</a>
 <button type="button" class="jh-add" id="ovAdd">AGREGAR AL CARRITO</button>
 </div>
 </div>
@@ -210,7 +208,7 @@ main{padding-left:16px}
 <div class="jh-tray-actions" id="trayActions">
 <button type="button" class="jh-add" id="lookToCart">AGREGAR TODO AL CARRITO</button>
 <button type="button" class="jh-add" id="lookPhoto">GUARDAR FOTO DEL LOOK</button>
-<a class="jh-wa" id="lookWa" href="#" target="_blank" rel="noopener">CONSULTAR ESTE LOOK POR WHATSAPP</a>
+<a class="jh-wa" id="lookWa" href="#" target="_blank" rel="noopener">CONSULTAR ESTE LOOK POR INSTAGRAM</a>
 <button type="button" class="jh-link" id="lookClear">VACIAR LOOK</button>
 </div>
 </div>
@@ -222,13 +220,14 @@ main{padding-left:16px}
 </div>
 <ul class="jh-cart-list" id="cartList"></ul>
 <div class="jh-cart-foot">
-<a class="jh-wa" id="cartWa" href="#" target="_blank" rel="noopener">CONSULTAR TODO POR WHATSAPP</a>
-<span class="jh-cart-note">PIEZAS ÚNICAS · TE RESPONDEMOS POR WHATSAPP</span>
+<a class="jh-wa" id="cartWa" href="#" target="_blank" rel="noopener">CONSULTAR TODO POR INSTAGRAM</a>
+<span class="jh-cart-note">PIEZAS ÚNICAS · TE RESPONDEMOS POR INSTAGRAM</span>
 </div>
 </aside>
 <script>
 (function () {
-var WHATSAPP = '549XXXXXXXXXX';
+var IG_USER = 'jovenhueso.revista';
+var IG_DM = 'https://ig.me/m/' + IG_USER;
 var REV = [];
 for (var i = 1; i <= 18; i++) REV.push('revista/rev-' + (i < 10 ? '0' : '') + i + '.jpg');
 var I = function (n) { return 'img/' + n + '.webp'; };
@@ -307,8 +306,28 @@ var ORDER = randomOrder(window.innerWidth <= 820 ? 6 : 12) || DEFAULT_ORDER;
 
 var board = document.getElementById('board'), grid = document.getElementById('grid');
 var flipped = false, cols = 0, z = 10, free = {}, cards = {}, loose = {};
-function waLink(msg) { return 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(msg); }
-document.getElementById('waFooter').href = waLink('Hola JOVENHUESO! Quiero consultar por las prendas del catálogo.');
+// Instagram no permite abrir un mensaje directo con el texto ya escrito:
+// al tocar "Consultar" se copia el mensaje y se abre el chat con @jovenhueso.revista para pegarlo
+function setConsult(el, msg) { el.href = IG_DM; el.setAttribute('data-ig-msg', msg); }
+function toast(t) {
+var d = document.getElementById('jhToast');
+if (!d) { d = document.createElement('div'); d.id = 'jhToast'; d.setAttribute('role', 'status'); d.className = 'jh-toast'; document.body.appendChild(d); }
+d.textContent = t; d.classList.add('on'); clearTimeout(d._t); d._t = setTimeout(function () { d.classList.remove('on'); }, 3200);
+}
+function copyText(t) {
+if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t).catch(function () { return fallbackCopy(t); });
+return Promise.resolve(fallbackCopy(t));
+}
+function fallbackCopy(t) {
+var ta = document.createElement('textarea'); ta.value = t; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;left:-9999px';
+document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (err) {} ta.remove();
+}
+document.addEventListener('click', function (e) {
+var a = e.target.closest && e.target.closest('[data-ig-msg]');
+if (!a || a.getAttribute('aria-disabled') === 'true') return;
+copyText(a.getAttribute('data-ig-msg'));
+toast('MENSAJE COPIADO · PEGALO EN EL CHAT DE INSTAGRAM');
+});
 function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 function cap(x) { return esc(x.name) + ' by <b>' + esc(x.brand) + '</b>'; }
 
@@ -489,6 +508,7 @@ trayBar.setAttribute('aria-expanded', open ? 'true' : 'false');
 function lookIds() { return Object.keys(loose); }
 function updateTray() {
 var n = Object.keys(loose).length;
+tray.classList.toggle('has-items', n > 0);
 var avail = lookIds().filter(function (id) { return !BY[id].sold; });
 var toAdd = avail.filter(function (id) { return cart.indexOf(id) < 0; });
 var btn = document.getElementById('lookToCart');
@@ -497,7 +517,7 @@ btn.disabled = !toAdd.length;
 document.getElementById('lookPhoto').disabled = !n;
 var wa = document.getElementById('lookWa');
 if (avail.length) {
-wa.href = waLink('Hola JOVENHUESO! Armé este look y me interesan estas prendas, ¿siguen disponibles?\n' + avail.map(function (id) { return '- ' + BY[id].name + ' by ' + BY[id].brand; }).join('\n'));
+setConsult(wa, 'Hola JOVENHUESO! Armé este look y me interesan estas prendas, ¿siguen disponibles?\n' + avail.map(function (id) { return '- ' + BY[id].name + ' by ' + BY[id].brand; }).join('\n'));
 wa.removeAttribute('aria-disabled'); wa.removeAttribute('tabindex');
 } else { wa.href = '#'; wa.setAttribute('aria-disabled', 'true'); wa.setAttribute('tabindex', '-1'); }
 document.getElementById('trayCount').textContent = n ? '(' + n + ')' : '';
@@ -578,11 +598,8 @@ var cx = cv.getContext('2d');
 cx.scale(sc, sc);
 cx.fillStyle = '#fff'; cx.fillRect(0, 0, area.width, area.height + head);
 cx.strokeStyle = '#C8C8C8'; cx.lineWidth = 1; cx.strokeRect(0.5, head + 0.5, area.width - 1, area.height - 1);
-cx.fillStyle = '#3A3A3A'; cx.font = '200 10px Archivo, Arial'; cx.textBaseline = 'middle';
-cx.fillText('ARMÁ TU', 2, head / 2);
-var w1 = cx.measureText('ARMÁ TU ').width; cx.font = '700 10px Archivo, Arial'; cx.fillStyle = '#111'; cx.fillText('LOOK', 2 + w1, head / 2);
 var logo = document.querySelector('header .logo img');
-if (logo && logo.complete) { var lh = 30, lw = lh * logo.naturalWidth / logo.naturalHeight; cx.drawImage(logo, area.width - lw - 2, (head - lh) / 2, lw, lh); }
+if (logo && logo.complete) { var lh = 30, lw = lh * logo.naturalWidth / logo.naturalHeight; cx.drawImage(logo, (area.width - lw) / 2, (head - lh) / 2, lw, lh); }
 lookIds().sort(function (a, b) { return (+loose[a].style.zIndex || 0) - (+loose[b].style.zIndex || 0); }).forEach(function (id) {
 var im = loose[id].querySelector(flipped && BY[id].b ? '.jh-back img' : '.jh-face:not(.jh-back) img');
 var r = im.getBoundingClientRect();
@@ -722,7 +739,7 @@ document.getElementById('ovCount').textContent = x.revista ? pad(k + 1) + ' / ' 
 document.getElementById('ovName').innerHTML = cap(x);
 document.getElementById('ovPrice').textContent = x.price;
 document.getElementById('ovDetail').textContent = x.revista ? 'FORMATO ' + x.size + ' · EDICIÓN IMPRESA' : 'TALLE ' + x.size + ' · PIEZA ÚNICA';
-document.getElementById('ovWa').href = waLink('Hola JOVENHUESO! Me interesa ' + x.name + ' by ' + x.brand + '. ¿Sigue disponible?');
+setConsult(document.getElementById('ovWa'), 'Hola JOVENHUESO! Me interesa ' + x.name + ' by ' + x.brand + '. ¿Sigue disponible?');
 ov.setAttribute('aria-label', x.name + ' by ' + x.brand + (x.sold ? ' — vendido' : ''));
 ov.classList.toggle('is-sold', !!x.sold);
 syncAddBtn();
@@ -758,7 +775,7 @@ return '<li><div class="th"><img src="' + x.f + '" alt=""></div><div class="nm">
 var wa = document.getElementById('cartWa');
 if (n) {
 var msg = 'Hola JOVENHUESO! Me interesan estas prendas, ¿siguen disponibles?\n' + cart.map(function (id) { var x = BY[id]; return '- ' + x.name + ' by ' + x.brand; }).join('\n');
-wa.href = waLink(msg); wa.removeAttribute('aria-disabled'); wa.removeAttribute('tabindex');
+setConsult(wa, msg); wa.removeAttribute('aria-disabled'); wa.removeAttribute('tabindex');
 } else { wa.href = '#'; wa.setAttribute('aria-disabled', 'true'); wa.setAttribute('tabindex', '-1'); }
 if (cur) syncAddBtn();
 if (typeof updateTray === 'function') updateTray();
