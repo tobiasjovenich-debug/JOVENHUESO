@@ -38,6 +38,9 @@ main{width:100%;max-width:1220px;margin:0 auto;padding:8px 32px 96px}
 .jh-pizarra{position:fixed;z-index:1;box-sizing:border-box;border:1px solid #C8C8C8;background:#fff;padding:7px 9px;pointer-events:none;display:none}
 .jh-pizarra.on{display:block}
 .jh-empty .jh-inner{visibility:hidden}
+.jh-img img{transition:opacity .6s ease,filter .6s ease}
+.jh-incart .jh-img img{opacity:.28;filter:blur(1.5px) grayscale(.4)}
+.jh-incart:hover .jh-img img{opacity:.55;filter:blur(.5px)}
 .jh-empty{cursor:default}
 .jh-loose{all:unset;position:fixed;box-sizing:border-box;cursor:grab;perspective:2000px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .jh-loose .jh-face{border:none;background:transparent;padding:0}
@@ -363,7 +366,7 @@ return null;
 function makeLoose(id, rect) {
 var x = BY[id], br = board.getBoundingClientRect();
 var el = document.createElement('button');
-el.type = 'button'; el.className = 'jh-loose'; el.setAttribute('data-jh-id', id); el.setAttribute('aria-label', x.name + ' by ' + x.brand);
+el.type = 'button'; el.className = 'jh-loose' + (cart.indexOf(id) >= 0 ? ' jh-incart' : ''); el.setAttribute('data-jh-id', id); el.setAttribute('aria-label', x.name + ' by ' + x.brand);
 el.innerHTML = '<div class="jh-inner"><div class="jh-face"><div class="jh-img"><img src="' + x.f + '" alt="" draggable="false"></div></div>' +
 '<div class="jh-face jh-back"><div class="jh-img"><img src="' + (x.b || x.f) + '" alt="" draggable="false"></div></div></div>';
 el.addEventListener('click', function (e) { if (e.detail === 0) openItem(id); });
@@ -461,7 +464,15 @@ var cart = [];
 try { cart = JSON.parse(localStorage.getItem('jh-cart') || '[]').filter(function (id) { return BY[id]; }); } catch (err) { cart = []; }
 function saveCart() { try { localStorage.setItem('jh-cart', JSON.stringify(cart)); } catch (err) {} }
 var cartEl = document.getElementById('cart'), cartBg = document.getElementById('cartBg');
+function markCart() {
+// las prendas que están en el carrito se difuminan en la grilla (y en la mesa de trabajo)
+document.querySelectorAll('[data-jh-id]').forEach(function (el) {
+var id = el.getAttribute('data-jh-id');
+el.classList.toggle('jh-incart', cart.indexOf(id) >= 0);
+});
+}
 function renderCart() {
+markCart();
 var n = cart.length, badge = document.getElementById('cartCount');
 badge.textContent = n; badge.classList.toggle('on', n > 0);
 document.getElementById('cartBtn').setAttribute('aria-label', 'Abrir carrito (' + n + (n === 1 ? ' prenda)' : ' prendas)'));
