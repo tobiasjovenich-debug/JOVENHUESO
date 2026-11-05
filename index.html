@@ -122,6 +122,8 @@ body.look-open .jh-tray-area{display:block}
 .jh-tray-hint{position:absolute;left:0;right:0;top:45%;text-align:center;font-size:9px;letter-spacing:.12em;color:#8A8A8A;font-weight:300;padding:0 24px}
 .jh-tray.hot .jh-tray-bar{background:#F7941D}
 .jh-tray.hot{border-top-color:#F7941D}
+body.look-open .jh-tray.hot .jh-tray-bar{background:#fff}
+body.look-open .jh-tray.hot .jh-tray-area{border-color:#111}
 body.is-mobile:not(.look-open) .jh-loose:not(.jh-lifted){display:none}
 body.is-mobile main{padding-bottom:84px}
 body.is-mobile .jh-cap{white-space:normal;font-size:7px}
@@ -483,16 +485,19 @@ if (p.touch && el.classList.contains('jh-loose')) { e.preventDefault(); lift(p.x
 else if (p.touch) holdTimer = setTimeout(function () { if (p && !p.cancelled) lift(p.x0, p.y0); }, 320);
 });
 function lift(x, y) {
-var el;
-if (p.el.classList.contains('jh-loose')) el = p.el;
+// se mide la prenda ANTES de convertirla en ficha suelta, así sale exactamente desde donde está el dedo
+var el, rect;
+if (p.el.classList.contains('jh-loose')) { el = p.el; rect = el.getBoundingClientRect(); }
 else {
 var im = p.el.querySelector(flipped && BY[p.id].b ? '.jh-back img' : '.jh-face:not(.jh-back) img');
-el = makeLoose(p.id, im.getBoundingClientRect());
+rect = im.getBoundingClientRect();
+el = makeLoose(p.id, rect);
 }
-var r = el.getBoundingClientRect();
-p.dx = x - r.left; p.dy = y - r.top; p.active = true; p.loose = el;
+p.dx = x - rect.left; p.dy = y - rect.top; p.active = true; p.loose = el;
 el.style.zIndex = ++z; el.classList.add('jh-lifted');
 cards[p.id].classList.add('jh-home');
+if (p.touch && navigator.vibrate) { try { navigator.vibrate(12); } catch (err) {} }
+if (el.animate) el.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.08)' }, { transform: 'scale(1)' }], { duration: 260, easing: 'ease-out' });
 }
 window.addEventListener('pointermove', function (e) {
 if (!p) return;
@@ -511,7 +516,12 @@ f.x = nx; f.y = ny; p.loose.style.left = nx + 'px'; p.loose.style.top = ny + 'px
 var hr = cards[p.id].getBoundingClientRect();
 p.home = e.clientX >= hr.left && e.clientX <= hr.right && e.clientY >= hr.top && e.clientY <= hr.bottom;
 cards[p.id].classList.toggle('hot', p.home);
-if (isMobile()) { p.tray = overTray(e.clientX, e.clientY); tray.classList.toggle('hot', p.tray && !document.body.classList.contains('look-open')); }
+if (isMobile()) {
+// al bajar la prenda hacia la bandeja, la pizarra se despliega sola para soltarla donde quieras
+if (!document.body.classList.contains('look-open') && e.clientY > window.innerHeight - 140) { setLookOpen(true); p.autoOpened = true; }
+p.tray = overTray(e.clientX, e.clientY);
+tray.classList.toggle('hot', p.tray);
+}
 });
 window.addEventListener('touchmove', function (e) { if (p && p.active) e.preventDefault(); }, { passive: false });
 function up() {
@@ -527,7 +537,11 @@ tray.classList.remove('hot');
 if (q.tray) {
 if (!document.body.classList.contains('look-open')) { setLookOpen(true); setTimeout(function () { if (loose[q.id]) placeInTray(q.id); }, 380); }
 else placeInTray(q.id);
-} else returnHome(q.id, true);
+} else {
+returnHome(q.id, true);
+// si la pizarra se abrió sola y quedó vacía, se vuelve a cerrar
+if (q.autoOpened && !Object.keys(loose).length) setLookOpen(false);
+}
 updateTray();
 }
 return;
