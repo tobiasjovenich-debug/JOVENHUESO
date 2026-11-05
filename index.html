@@ -156,7 +156,44 @@ var ITEMS = [
 var REAL = {"fleece": 62, "bandolera": 75, "capucha": 70, "blanco34": 72, "vincha": 30, "puffer": 65, "revista": 29.7, "remegris": 62, "boina": 28, "canilleras": 30, "gafas": 15, "chombaark": 58, "inter": 50, "muscunaranja": 60, "muscuroja": 58, "pant": 102, "muscunegra": 68, "remeceleste": 58, "jean34": 72, "pollera": 50, "chombablanca": 62, "zoom": 30, "kioto": 29, "tabisblancas": 28, "tabisnegras": 28, "bolso": 40};
 var DIMS = {"img/muscu-capucha-nike.webp":[612,1000],"img/reme-gris-nike.webp":[979,1000],"img/vincha-ninja-nike.webp":[1000,604],"img/campe-nike.webp":[1000,807],"img/chomba-ark-adidas.webp":[1000,842],"img/3-4-blancos.webp":[902,1000],"img/boina-nike.webp":[1000,872],"img/boina-nike-back.webp":[1000,852],"img/3-4-nike-back.webp":[832,1000],"img/muscu-naranja-nike.webp":[911,1000],"img/reme-inter.webp":[1000,890],"img/pollera-adidas-back.webp":[1000,641],"img/muscu-negra-nike-back.webp":[712,1000],"img/3-4-blancos-back.webp":[794,1000],"img/cantimplora-nike.webp":[214,1000],"img/reme-gris-nike-back.webp":[961,1000],"img/reme-celeste-adidas-back.webp":[1000,991],"img/tennis-nike-suela.webp":[815,1000],"img/chomba-ark-adidas-back.webp":[1000,848],"img/3-4-nike.webp":[777,1000],"img/campe-nike-back.webp":[1000,755],"img/reme-celeste-adidas.webp":[1000,992],"img/tabis-blancas-suela.webp":[779,1000],"img/muscu-capucha-nike-back.webp":[602,1000],"img/pant-reebook-back.webp":[547,1000],"img/tabis-negras-suela.webp":[790,1000],"img/muscu-negra-nike.webp":[689,943],"img/cartera-jet.webp":[528,1000],"img/tabis-blancas.webp":[818,1000],"img/campe-blanca-nike.webp":[1000,808],"img/canilleras-nike.webp":[1000,815],"img/nike-ninja-blancas.webp":[843,1000],"img/reme-inter-back.webp":[1000,882],"img/chomba-blanca-adidas.webp":[938,1000],"img/tennis-nike.webp":[932,1000],"img/tabis-negras-frente.webp":[827,1000],"img/muscu-naranja-nike-back.webp":[927,1000],"img/muscu-roja-adidas-back.webp":[828,1000],"img/muscu-roja-adidas.webp":[809,1000],"img/pant-reebook.webp":[541,1000],"img/pollera-adidas.webp":[1000,656],"img/gafas-blancas.webp":[1000,436],"img/chomba-blanca-adidas-back.webp":[908,1000],"revista/rev-01.jpg":[1290,1800]};
 var BY = {}; ITEMS.forEach(function (x) { x.price = '$ [PRECIO]'; x.size = x.size || '[TALLE]'; BY[x.id] = x; });
-var ORDER = ['vincha','chombablanca','jean34','bolso','remeceleste','blanco34','gafas','chombaark','tabisblancas','puffer','capucha','kioto','pant','canilleras','bandolera','tabisnegras','muscuroja','boina','fleece','revista','muscunegra','zoom','muscunaranja','remegris','inter','pollera'];
+var DEFAULT_ORDER = ['vincha','chombablanca','jean34','bolso','remeceleste','blanco34','gafas','chombaark','tabisblancas','puffer','capucha','kioto','pant','canilleras','bandolera','tabisnegras','muscuroja','boina','fleece','revista','muscunegra','zoom','muscunaranja','remegris','inter','pollera'];
+// cada vez que se carga la página se arma una grilla nueva al azar, mezclando tipos de prenda y sin huecos
+var CAT = {fleece:'out',puffer:'out',bandolera:'acc',vincha:'acc',boina:'acc',canilleras:'acc',gafas:'acc',bolso:'acc',revista:'rev',blanco34:'bot',pant:'bot',jean34:'bot',pollera:'bot',zoom:'shoe',kioto:'shoe',tabisblancas:'shoe',tabisnegras:'shoe'};
+function randomOrder(cols) {
+var ids = DEFAULT_ORDER.slice(), area = 0;
+ids.forEach(function (i) { area += BY[i].w * BY[i].h; });
+var rows = Math.ceil(area / cols);
+var cat = function (i) { return CAT[i] || 'top'; };
+for (var attempt = 0; attempt < 600; attempt++) {
+var g = {}, order = [], rem = ids.slice(), steps = 0;
+var free = function (r, c) { return c < cols && r < rows && !g[r * 64 + c]; };
+var first = function () { for (var r = 0; r < rows; r++) for (var c = 0; c < cols; c++) if (!g[r * 64 + c]) return [r, c]; return null; };
+var dfs = function () {
+if (++steps > 300) return false;
+if (!rem.length) return true;
+var f = first(), r = f[0], c = f[1], run = 0;
+while (c + run < cols && free(r, c + run)) run++;
+if (run < 2) return false;
+var last = order.slice(-2).map(cat);
+var cands = rem.map(function (i) { return [i, (last.indexOf(cat(i)) >= 0 ? 1 : 0) + Math.random() * 0.8]; }).sort(function (a, b) { return a[1] - b[1]; });
+for (var n = 0; n < cands.length; n++) {
+var id = cands[n][0], w = BY[id].w, h = BY[id].h, x, y, ok = true;
+if (w > run || r + h > rows || run - w === 1) continue;
+for (y = 0; y < h && ok; y++) for (x = 0; x < w; x++) if (!free(r + y, c + x)) { ok = false; break; }
+if (!ok) continue;
+for (y = 0; y < h; y++) for (x = 0; x < w; x++) g[(r + y) * 64 + c + x] = id;
+order.push(id); rem.splice(rem.indexOf(id), 1);
+if (dfs()) return true;
+order.pop(); rem.push(id);
+for (y = 0; y < h; y++) for (x = 0; x < w; x++) delete g[(r + y) * 64 + c + x];
+}
+return false;
+};
+if (dfs()) return order;
+}
+return null;
+}
+var ORDER = randomOrder(12) || DEFAULT_ORDER;
 
 var board = document.getElementById('board'), grid = document.getElementById('grid');
 var flipped = false, cols = 0, z = 10, free = {}, cards = {}, loose = {};
