@@ -20,7 +20,7 @@ header .logo img{height:40px;width:auto;display:block}
 .jh-icon svg{transition:transform .6s cubic-bezier(.2,.7,.2,1)}
 .jh-on,.jh-on:hover{background:#F7941D}
 .jh-on svg{transform:rotate(180deg)}
-:root{--gap:9px;--piz:clamp(220px,20vw,360px)}
+:root{--gap:9px;--piz:clamp(260px,26vw,520px)}
 main{width:100%;margin:0;padding:8px var(--gap) 96px calc(var(--piz) + 2 * var(--gap))}
 .jh-board{position:relative}
 .jh-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-auto-rows:90px;gap:var(--gap)}
@@ -212,7 +212,7 @@ var ITEMS = [
 { id: 'bolso', name: 'Bolso', brand: 'JET', w: 3, h: 3, f: I('cartera-jet') }
 ];
 // medida real del lado más largo de cada prenda (cm) y tamaño de cada foto: para que todo esté a la misma escala
-var REAL = {"fleece": 62, "bandolera": 75, "capucha": 70, "blanco34": 72, "vincha": 30, "puffer": 65, "revista": 29.7, "remegris": 62, "boina": 28, "canilleras": 30, "gafas": 15, "chombaark": 58, "inter": 50, "muscunaranja": 60, "muscuroja": 58, "pant": 102, "muscunegra": 68, "remeceleste": 58, "jean34": 72, "pollera": 50, "chombablanca": 62, "zoom": 30, "kioto": 29, "tabisblancas": 28, "tabisnegras": 28, "bolso": 40};
+var REAL = {"fleece": ["h", 70], "puffer": ["h", 66], "bandolera": ["h", 75], "capucha": ["h", 72], "blanco34": ["h", 70], "vincha": ["w", 32], "revista": ["h", 29.7], "remegris": ["h", 60], "boina": ["w", 28], "canilleras": ["w", 30], "gafas": ["w", 15], "chombaark": ["h", 66], "inter": ["h", 56], "muscunaranja": ["h", 58], "muscuroja": ["h", 56], "pant": ["h", 102], "muscunegra": ["h", 68], "remeceleste": ["h", 58], "jean34": ["h", 72], "pollera": ["h", 38], "chombablanca": ["h", 60], "zoom": ["h", 30], "kioto": ["h", 29], "tabisblancas": ["h", 28], "tabisnegras": ["h", 28], "bolso": ["h", 40]}; // medida real: ['h', alto en cm] o ['w', ancho en cm]
 var DIMS = {"img/muscu-capucha-nike.webp":[612,1000],"img/reme-gris-nike.webp":[979,1000],"img/vincha-ninja-nike.webp":[1000,604],"img/campe-nike.webp":[1000,807],"img/chomba-ark-adidas.webp":[1000,842],"img/3-4-blancos.webp":[902,1000],"img/boina-nike.webp":[1000,872],"img/boina-nike-back.webp":[1000,852],"img/3-4-nike-back.webp":[832,1000],"img/muscu-naranja-nike.webp":[911,1000],"img/reme-inter.webp":[1000,890],"img/pollera-adidas-back.webp":[1000,641],"img/muscu-negra-nike-back.webp":[712,1000],"img/3-4-blancos-back.webp":[794,1000],"img/cantimplora-nike.webp":[214,1000],"img/reme-gris-nike-back.webp":[961,1000],"img/reme-celeste-adidas-back.webp":[1000,991],"img/tennis-nike-suela.webp":[815,1000],"img/chomba-ark-adidas-back.webp":[1000,848],"img/3-4-nike.webp":[777,1000],"img/campe-nike-back.webp":[1000,755],"img/reme-celeste-adidas.webp":[1000,992],"img/tabis-blancas-suela.webp":[779,1000],"img/muscu-capucha-nike-back.webp":[602,1000],"img/pant-reebook-back.webp":[547,1000],"img/tabis-negras-suela.webp":[790,1000],"img/muscu-negra-nike.webp":[689,943],"img/cartera-jet.webp":[528,1000],"img/tabis-blancas.webp":[818,1000],"img/campe-blanca-nike.webp":[1000,808],"img/canilleras-nike.webp":[1000,815],"img/nike-ninja-blancas.webp":[843,1000],"img/reme-inter-back.webp":[1000,882],"img/chomba-blanca-adidas.webp":[938,1000],"img/tennis-nike.webp":[932,1000],"img/tabis-negras-frente.webp":[827,1000],"img/muscu-naranja-nike-back.webp":[927,1000],"img/muscu-roja-adidas-back.webp":[828,1000],"img/muscu-roja-adidas.webp":[809,1000],"img/pant-reebook.webp":[541,1000],"img/pollera-adidas.webp":[1000,656],"img/gafas-blancas.webp":[1000,436],"img/chomba-blanca-adidas-back.webp":[908,1000],"revista/rev-01.jpg":[1290,1800]};
 var BY = {}; ITEMS.forEach(function (x) { x.price = '$ [PRECIO]'; x.size = x.size || '[TALLE]'; BY[x.id] = x; });
 var DEFAULT_ORDER = ['vincha','chombablanca','jean34','bolso','remeceleste','blanco34','gafas','chombaark','tabisblancas','puffer','capucha','kioto','pant','canilleras','bandolera','tabisnegras','muscuroja','boina','fleece','revista','muscunegra','zoom','muscunaranja','remegris','inter','pollera'];
@@ -310,19 +310,23 @@ grid.style.gridAutoRows = ((grid.clientWidth - 11 * GAP) / 12) + 'px';
 }
 window.addEventListener('resize', function () { layout(); setRows(); placePizarras(); applyScale(); });
 
-// ---- escala real: la campera puffer ocupa el 76% del ancho de su recuadro y el resto se ajusta a esa escala
+// ---- escala real: una sola escala para todas las prendas (alto real; accesorios por su ancho).
+// Se usa la escala más grande con la que TODAS entran en su recuadro dejando aire, así ninguna se achica aparte.
 function applyScale() {
-var pf = cards.puffer; if (!pf) return;
-var k = 0.76 * pf.clientWidth / REAL.puffer; // px por cm
+var info = {}, k = Infinity;
 ORDER.forEach(function (id) {
-var x = BY[id], card = cards[id];
-var fd = DIMS[x.f]; if (!fd) return;
-var s = REAL[id] * k / Math.max(fd[0], fd[1]); // px por pixel de la foto
-var maxW = card.clientWidth * 0.84, maxH = card.clientHeight * 0.80;
-card.querySelectorAll('.jh-img img').forEach(function (im) {
-var d = DIMS[im.getAttribute('src')] || fd;
-var w = d[0] * s, h = d[1] * s, fit = Math.min(1, maxW / w, maxH / h);
-im.style.width = (w * fit) + 'px'; im.style.height = (h * fit) + 'px';
+var x = BY[id], card = cards[id], fd = DIMS[x.f], m = REAL[id];
+if (!fd || !m) return;
+var wcm = m[0] === 'h' ? m[1] * fd[0] / fd[1] : m[1], hcm = m[0] === 'h' ? m[1] : m[1] * fd[1] / fd[0];
+info[id] = { wcm: wcm, fd: fd };
+k = Math.min(k, card.clientWidth * 0.84 / wcm, card.clientHeight * 0.80 / hcm);
+});
+ORDER.forEach(function (id) {
+var i = info[id]; if (!i) return;
+var s = i.wcm * k / i.fd[0]; // px por pixel de la foto
+cards[id].querySelectorAll('.jh-img img').forEach(function (im) {
+var d = DIMS[im.getAttribute('src')] || i.fd;
+im.style.width = (d[0] * s) + 'px'; im.style.height = (d[1] * s) + 'px';
 });
 });
 }
