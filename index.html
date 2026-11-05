@@ -47,6 +47,8 @@ main{width:100%;margin:0;padding:8px var(--gap) 96px calc(var(--piz) + 2 * var(-
 #cartBtn.pop svg{animation:jhPop .45s cubic-bezier(.2,.7,.2,1)}
 @keyframes jhPop{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
 .jh-empty{cursor:default}
+.jh-empty.jh-home{outline:1px dashed #BDBDBD;outline-offset:-1px;transition:outline-color .15s,background .15s}
+.jh-empty.jh-home.hot{outline:1px solid #111;background:#FAFAFA}
 .jh-loose{all:unset;position:fixed;box-sizing:border-box;cursor:grab;perspective:2000px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .jh-loose .jh-face{border:none;background:transparent;padding:0}
 .jh-loose .jh-img{padding:0}
@@ -377,12 +379,25 @@ el.type = 'button'; el.className = 'jh-loose'; el.setAttribute('data-jh-id', id)
 el.innerHTML = '<div class="jh-inner"><div class="jh-face"><div class="jh-img"><img src="' + x.f + '" alt="" draggable="false"></div></div>' +
 '<div class="jh-face jh-back"><div class="jh-img"><img src="' + (x.b || x.f) + '" alt="" draggable="false"></div></div></div>';
 el.addEventListener('click', function (e) { if (e.detail === 0) openItem(id); });
+el.addEventListener('dblclick', function () { clearTimeout(openTimer); returnHome(id, true); });
 free[id] = { x: rect.left, y: rect.top, w: rect.width, h: rect.height };
 el.style.left = free[id].x + 'px'; el.style.top = free[id].y + 'px'; el.style.width = rect.width + 'px'; el.style.height = rect.height + 'px';
 board.appendChild(el); loose[id] = el;
 cards[id].classList.add('jh-empty'); cards[id].tabIndex = -1;
 loadMask(x.f); if (x.b) loadMask(x.b);
 return el;
+}
+function returnHome(id, animate) {
+var el = loose[id], card = cards[id];
+if (!el) return;
+var from = el.getBoundingClientRect();
+el.remove(); delete loose[id]; delete free[id];
+card.classList.remove('jh-empty', 'jh-home', 'hot'); card.tabIndex = 0;
+if (animate && card.animate) {
+var im = card.querySelector(flipped && BY[id].b ? '.jh-back img' : '.jh-face:not(.jh-back) img');
+var to = im.getBoundingClientRect();
+card.animate([{ transform: 'translate(' + (from.left - to.left) + 'px,' + (from.top - to.top) + 'px)' }, { transform: 'translate(0,0)' }], { duration: 520, easing: 'cubic-bezier(.2,.7,.2,1)' });
+}
 }
 function clearLoose(animate) {
 Object.keys(loose).forEach(function (id) {
@@ -399,7 +414,7 @@ card.animate([{ transform: 'translate(' + (from.left - to.left) + 'px,' + (from.
 }
 document.getElementById('resetBtn').addEventListener('click', function () { clearLoose(true); });
 
-var p = null, holdTimer = null;
+var p = null, holdTimer = null, openTimer = null;
 board.addEventListener('pointerdown', function (e) {
 if (e.button !== 0) return;
 var el = hitTest(e.clientX, e.clientY);
@@ -418,6 +433,7 @@ el = makeLoose(p.id, im.getBoundingClientRect());
 var r = el.getBoundingClientRect();
 p.dx = x - r.left; p.dy = y - r.top; p.active = true; p.loose = el;
 el.style.zIndex = ++z; el.classList.add('jh-lifted');
+cards[p.id].classList.add('jh-home');
 }
 window.addEventListener('pointermove', function (e) {
 if (!p) return;
@@ -433,14 +449,25 @@ var vw = document.documentElement.clientWidth, vh = window.innerHeight;
 var nx = Math.max(-f.w * 0.6, Math.min(vw - f.w * 0.4, e.clientX - p.dx));
 var ny = Math.max(-f.h * 0.3, Math.min(vh - f.h * 0.5, e.clientY - p.dy));
 f.x = nx; f.y = ny; p.loose.style.left = nx + 'px'; p.loose.style.top = ny + 'px';
+var hr = cards[p.id].getBoundingClientRect();
+p.home = e.clientX >= hr.left && e.clientX <= hr.right && e.clientY >= hr.top && e.clientY <= hr.bottom;
+cards[p.id].classList.toggle('hot', p.home);
 });
 window.addEventListener('touchmove', function (e) { if (p && p.active) e.preventDefault(); }, { passive: false });
 function up() {
 clearTimeout(holdTimer);
 if (!p) return;
 var q = p; p = null;
-if (q.active) { q.loose.classList.remove('jh-lifted'); return; }
-if (!q.cancelled) openItem(q.id);
+if (q.active) {
+q.loose.classList.remove('jh-lifted');
+cards[q.id].classList.remove('jh-home', 'hot');
+if (q.home) returnHome(q.id, true);
+return;
+}
+if (q.cancelled) return;
+// en una prenda suelta esperamos un instante por si es doble clic (volver a su lugar)
+if (q.el.classList.contains('jh-loose')) { clearTimeout(openTimer); openTimer = setTimeout(function () { openItem(q.id); }, 260); }
+else openItem(q.id);
 }
 window.addEventListener('pointerup', up);
 window.addEventListener('pointercancel', up);
