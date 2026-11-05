@@ -113,11 +113,21 @@ footer a{text-decoration:none}
 .jh-tray{display:none}
 body.is-mobile .jh-tray{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:5;flex-direction:column;background:#fff;border-top:1px solid #C8C8C8;height:52px;transition:height .35s cubic-bezier(.2,.7,.2,1);touch-action:none}
 body.is-mobile.look-open .jh-tray{height:62vh}
+body.is-mobile.look-full .jh-tray{height:100vh;height:100dvh;border-top:0}
+.jh-tray-actions{display:none;flex-direction:column;gap:8px;padding:0 9px 12px;flex-shrink:0}
+body.look-full .jh-tray-actions{display:flex}
+.jh-tray-actions .jh-wa,.jh-tray-actions .jh-add{margin-top:0;width:100%;box-sizing:border-box;min-height:46px}
+.jh-tray-actions .jh-wa[aria-disabled="true"],.jh-tray-actions .jh-add:disabled{opacity:.35;pointer-events:none}
+.jh-tray-actions .jh-link{all:unset;cursor:pointer;text-align:center;font-size:9px;letter-spacing:.14em;color:#555;padding:8px;font-weight:300}
+.jh-tray-actions .jh-link:focus-visible{outline:2px solid #111}
+.jh-swipe{width:36px;height:4px;border-radius:2px;background:#D2D2D2;position:absolute;left:50%;top:6px;transform:translateX(-50%)}
+.jh-tray-bar{position:relative}
 .jh-tray.dragging{transition:none}
 .jh-tray-bar{all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:12px;height:52px;padding:0 16px;flex-shrink:0;cursor:pointer}
 .jh-tray-bar .jh-cap{font-size:10px}
 .jh-tray-bar svg{transition:transform .35s ease}
 body.look-open .jh-tray-bar svg{transform:rotate(180deg)}
+body.look-full .jh-tray-bar svg{transform:rotate(180deg)}
 .jh-tray-area{flex:1;margin:0 9px 9px;border:1px solid #C8C8C8;display:none;position:relative}
 body.look-open .jh-tray-area{display:block}
 .jh-tray-hint{position:absolute;left:0;right:0;top:45%;text-align:center;font-size:9px;letter-spacing:.12em;color:#8A8A8A;font-weight:300;padding:0 24px}
@@ -192,10 +202,16 @@ main{padding-left:16px}
 </div>
 <div class="jh-tray" id="tray">
 <button type="button" class="jh-tray-bar" id="trayBar" aria-expanded="false">
+<span class="jh-swipe" aria-hidden="true"></span>
 <span class="jh-cap">ARMÁ TU <b>LOOK</b> <span id="trayCount"></span></span>
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.5" aria-hidden="true"><path d="M5 15l7-7 7 7"/></svg>
 </button>
 <div class="jh-tray-area" id="trayArea"><span class="jh-tray-hint" id="trayHint">MANTENÉ APRETADA UNA PRENDA Y ARRASTRALA ACÁ</span></div>
+<div class="jh-tray-actions" id="trayActions">
+<button type="button" class="jh-add" id="lookToCart">AGREGAR TODO AL CARRITO</button>
+<a class="jh-wa" id="lookWa" href="#" target="_blank" rel="noopener">CONSULTAR ESTE LOOK POR WHATSAPP</a>
+<button type="button" class="jh-link" id="lookClear">VACIAR LOOK</button>
+</div>
 </div>
 <div class="jh-cart-bg" id="cartBg"></div>
 <aside class="jh-cart" id="cart" role="dialog" aria-modal="true" aria-label="Carrito">
@@ -458,40 +474,77 @@ document.getElementById('resetBtn').addEventListener('click', function () { clea
 // ---- bandeja ARMÁ TU LOOK (celular): se arrastran prendas ahí y se abre como pizarra
 var tray = document.getElementById('tray'), trayBar = document.getElementById('trayBar'), trayArea = document.getElementById('trayArea');
 function isMobile() { return cols === 6; }
+function setLookFull(full) {
+document.body.classList.toggle('look-full', full);
+if (full) document.body.classList.add('look-open');
+updateTray(); followTray(450);
+}
 function setLookOpen(open) {
 document.body.classList.toggle('look-open', open);
+if (!open) document.body.classList.remove('look-full');
 if (open) followTray(450);
 trayBar.setAttribute('aria-expanded', open ? 'true' : 'false');
 }
+function lookIds() { return Object.keys(loose); }
 function updateTray() {
 var n = Object.keys(loose).length;
+var avail = lookIds().filter(function (id) { return !BY[id].sold; });
+var toAdd = avail.filter(function (id) { return cart.indexOf(id) < 0; });
+var btn = document.getElementById('lookToCart');
+if (!btn.dataset.flash) btn.textContent = avail.length && !toAdd.length ? 'TODO EL LOOK ESTÁ EN EL CARRITO ✓' : 'AGREGAR TODO AL CARRITO' + (toAdd.length ? ' (' + toAdd.length + ')' : '');
+btn.disabled = !toAdd.length;
+var wa = document.getElementById('lookWa');
+if (avail.length) {
+wa.href = waLink('Hola JOVENHUESO! Armé este look y me interesan estas prendas, ¿siguen disponibles?\n' + avail.map(function (id) { return '- ' + BY[id].name + ' by ' + BY[id].brand; }).join('\n'));
+wa.removeAttribute('aria-disabled'); wa.removeAttribute('tabindex');
+} else { wa.href = '#'; wa.setAttribute('aria-disabled', 'true'); wa.setAttribute('tabindex', '-1'); }
 document.getElementById('trayCount').textContent = n ? '(' + n + ')' : '';
 document.getElementById('trayHint').style.display = n ? 'none' : '';
 }
 trayBar.addEventListener('click', function () {
 if (traySwiped) { traySwiped = false; return; }
-setLookOpen(!document.body.classList.contains('look-open'));
+if (document.body.classList.contains('look-full')) setLookFull(false);
+else setLookOpen(!document.body.classList.contains('look-open'));
 });
-// deslizar el dedo hacia abajo sobre la pizarra (en la barra o en una zona vacía) la cierra
+// gestos sobre la bandeja (en la barra o en una zona vacía de la pizarra):
+// hacia arriba = abrir / pantalla completa · hacia abajo = bajar un paso / cerrar
 var traySwipe = null, traySwiped = false;
 tray.addEventListener('pointerdown', function (e) {
-if (!document.body.classList.contains('look-open')) return;
+if (e.target.closest('.jh-tray-actions')) return;
 traySwipe = { y0: e.clientY, dy: 0 };
 });
 window.addEventListener('pointermove', function (e) {
 if (!traySwipe) return;
-var dy = Math.max(0, e.clientY - traySwipe.y0);
+var dy = e.clientY - traySwipe.y0;
 traySwipe.dy = dy;
-if (dy > 6) { tray.classList.add('dragging'); tray.style.transform = 'translateY(' + dy + 'px)'; }
+if (dy > 6 && document.body.classList.contains('look-open')) { tray.classList.add('dragging'); tray.style.transform = 'translateY(' + dy + 'px)'; }
 });
 function endTraySwipe() {
 if (!traySwipe) return;
 var dy = traySwipe.dy; traySwipe = null;
 tray.classList.remove('dragging'); tray.style.transform = '';
-if (dy > 60) { traySwiped = true; setLookOpen(false); setTimeout(function () { traySwiped = false; }, 400); }
+var full = document.body.classList.contains('look-full'), open = document.body.classList.contains('look-open');
+if (dy < -50) {
+traySwiped = true;
+if (!open) setLookOpen(true); else if (!full) setLookFull(true);
+} else if (dy > 60) {
+traySwiped = true;
+if (full) setLookFull(false); else if (open) setLookOpen(false);
+}
+if (traySwiped) setTimeout(function () { traySwiped = false; }, 400);
 }
 window.addEventListener('pointerup', endTraySwipe);
 window.addEventListener('pointercancel', endTraySwipe);
+document.getElementById('lookToCart').addEventListener('click', function () {
+var btn = this, added = 0;
+lookIds().forEach(function (id) { if (!BY[id].sold && cart.indexOf(id) < 0) { cart.push(id); added++; } });
+if (!added) return;
+saveCart(); renderCart();
+var cb = document.getElementById('cartBtn'); cb.classList.remove('pop'); void cb.offsetWidth; cb.classList.add('pop');
+btn.dataset.flash = '1'; btn.textContent = added === 1 ? '1 PRENDA AGREGADA ✓' : added + ' PRENDAS AGREGADAS ✓';
+setTimeout(function () { delete btn.dataset.flash; updateTray(); }, 1600);
+});
+document.getElementById('lookClear').addEventListener('click', function () { clearLoose(true); updateTray(); setLookFull(false); });
 function overTray(x, y) { var r = tray.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; }
 function placeInTray(id) {
 // deja la prenda dentro de la pizarra (si se soltó sobre la barra, va al centro)
@@ -651,6 +704,7 @@ var msg = 'Hola JOVENHUESO! Me interesan estas prendas, ¿siguen disponibles?\n'
 wa.href = waLink(msg); wa.removeAttribute('aria-disabled'); wa.removeAttribute('tabindex');
 } else { wa.href = '#'; wa.setAttribute('aria-disabled', 'true'); wa.setAttribute('tabindex', '-1'); }
 if (cur) syncAddBtn();
+if (typeof updateTray === 'function') updateTray();
 }
 function syncAddBtn() {
 var b = document.getElementById('ovAdd'), inCart = cart.indexOf(cur) >= 0;
