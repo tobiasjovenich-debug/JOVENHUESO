@@ -754,7 +754,8 @@ ov.setAttribute('aria-label', x.name + ' by ' + x.brand + (x.sold ? ' — vendid
 ov.classList.toggle('is-sold', !!x.sold);
 syncAddBtn();
 }
-function openItem(id) { cur = id; side = 0; renderOv(); ov.classList.add('open'); document.getElementById('ovClose').focus(); }
+function openItem(id) { cur = id; side = flipped && BY[id].b && !BY[id].pages ? 1 : 0; // si el catálogo está dado vuelta, se abre mostrando la espalda
+ renderOv(); ov.classList.add('open'); document.getElementById('ovClose').focus(); }
 document.getElementById('ovClose').addEventListener('click', function () { ov.classList.remove('open'); if (cards[cur]) cards[cur].focus(); });
 function stepOv(d) {
 var x = BY[cur], n = (x.pages || (x.b ? [x.f, x.b] : [x.f])).length;
