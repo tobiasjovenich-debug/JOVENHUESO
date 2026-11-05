@@ -20,9 +20,9 @@ header .logo img{height:40px;width:auto;display:block}
 .jh-icon svg{transition:transform .6s cubic-bezier(.2,.7,.2,1)}
 .jh-on,.jh-on:hover{background:#F7941D}
 .jh-on svg{transform:rotate(180deg)}
-main{width:100%;max-width:1300px;margin:0 auto;padding:8px 32px 96px}
+main{width:100%;max-width:1220px;margin:0 auto;padding:8px 32px 96px}
 .jh-board{position:relative}
-.jh-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-auto-rows:calc((min(100vw - 64px, 1236px) - 99px) / 12);gap:9px}
+.jh-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-auto-rows:calc((min(100vw - 64px, 1156px) - 99px) / 12);gap:9px}
 .jh-card{all:unset;box-sizing:border-box;display:block;position:relative;cursor:grab;perspective:2000px;min-width:0;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .jh-card:focus-visible{outline:2px solid #111;outline-offset:3px}
 .jh-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.2,.7,.2,1)}
@@ -35,11 +35,11 @@ main{width:100%;max-width:1300px;margin:0 auto;padding:8px 32px 96px}
 .jh-img{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
 .jh-img img{max-width:100%;max-height:100%;object-fit:contain;display:block;pointer-events:none;user-select:none}
 .jh-face .jh-cap{position:relative;z-index:1}
-.jh-pizarra{position:absolute;top:0;bottom:0;box-sizing:border-box;border:1px solid #C8C8C8;background:#fff;padding:7px 9px;pointer-events:none;display:none}
+.jh-pizarra{position:fixed;z-index:1;box-sizing:border-box;border:1px solid #C8C8C8;background:#fff;padding:7px 9px;pointer-events:none;display:none}
 .jh-pizarra.on{display:block}
 .jh-empty .jh-inner{visibility:hidden}
 .jh-empty{cursor:default}
-.jh-loose{all:unset;position:absolute;box-sizing:border-box;cursor:grab;perspective:2000px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.jh-loose{all:unset;position:fixed;box-sizing:border-box;cursor:grab;perspective:2000px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .jh-loose .jh-face{border:none;background:transparent;padding:0}
 .jh-loose .jh-img{padding:0}
 .jh-loose:focus-visible{outline:1px dashed #9A9A9A;outline-offset:4px}
@@ -197,15 +197,19 @@ ORDER.forEach(function (id) { var p = pl[id]; cards[id].style.gridColumn = (p.c 
 }
 // pizarras "Armá tu look": ocupan las bandas blancas a los costados de la grilla
 var pizL = document.getElementById('pizL'), pizR = document.getElementById('pizR');
+var GAP = 9; // la misma separación que entre recuadros
 function placePizarras() {
-var br = board.getBoundingClientRect(), vw = document.documentElement.clientWidth, m = 24;
+var br = board.getBoundingClientRect(), vw = document.documentElement.clientWidth, vh = window.innerHeight;
 var left = br.left, right = vw - br.right;
 var show = cols === 12 && left >= 150 && right >= 150;
 pizL.classList.toggle('on', show); pizR.classList.toggle('on', show);
 if (!show) return;
-pizL.style.left = (-left + m) + 'px'; pizL.style.width = (left - 2 * m) + 'px';
-pizR.style.left = (br.width + m) + 'px'; pizR.style.width = (right - 2 * m) + 'px';
+var top = Math.max(GAP, br.top), bottom = Math.max(GAP, vh - br.bottom);
+[pizL, pizR].forEach(function (pz) { pz.style.top = top + 'px'; pz.style.bottom = bottom + 'px'; });
+pizL.style.left = GAP + 'px'; pizL.style.width = (left - 2 * GAP) + 'px';
+pizR.style.left = (br.right + GAP) + 'px'; pizR.style.width = (right - 2 * GAP) + 'px';
 }
+window.addEventListener('scroll', placePizarras, { passive: true });
 window.addEventListener('resize', function () { layout(); placePizarras(); applyScale(); });
 
 // ---- escala real: la campera puffer ocupa el 76% del ancho de su recuadro y el resto se ajusta a esa escala
@@ -277,7 +281,7 @@ el.type = 'button'; el.className = 'jh-loose'; el.setAttribute('data-jh-id', id)
 el.innerHTML = '<div class="jh-inner"><div class="jh-face"><div class="jh-img"><img src="' + x.f + '" alt="" draggable="false"></div></div>' +
 '<div class="jh-face jh-back"><div class="jh-img"><img src="' + (x.b || x.f) + '" alt="" draggable="false"></div></div></div>';
 el.addEventListener('click', function (e) { if (e.detail === 0) openItem(id); });
-free[id] = { x: rect.left - br.left, y: rect.top - br.top, w: rect.width, h: rect.height };
+free[id] = { x: rect.left, y: rect.top, w: rect.width, h: rect.height };
 el.style.left = free[id].x + 'px'; el.style.top = free[id].y + 'px'; el.style.width = rect.width + 'px'; el.style.height = rect.height + 'px';
 board.appendChild(el); loose[id] = el;
 cards[id].classList.add('jh-empty'); cards[id].tabIndex = -1;
@@ -327,12 +331,11 @@ if (p.touch) { if (dist > 10) { p.cancelled = true; clearTimeout(holdTimer); } r
 if (dist < 5) return;
 lift(p.x0, p.y0);
 }
-var br = board.getBoundingClientRect(), f = free[p.id];
-// sin límite: la ficha puede ir a cualquier parte de la pantalla, también a los costados
-var vw = document.documentElement.clientWidth, pageTop = br.top + window.scrollY;
-var pageH = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
-var nx = Math.max(-br.left - f.w * 0.6, Math.min(vw - br.left - f.w * 0.4, e.clientX - br.left - p.dx));
-var ny = Math.max(-pageTop - f.h * 0.3, Math.min(pageH - pageTop - f.h * 0.5, e.clientY - br.top - p.dy));
+var f = free[p.id];
+// la ficha se mueve por toda la pantalla y queda fija mientras se scrollea
+var vw = document.documentElement.clientWidth, vh = window.innerHeight;
+var nx = Math.max(-f.w * 0.6, Math.min(vw - f.w * 0.4, e.clientX - p.dx));
+var ny = Math.max(-f.h * 0.3, Math.min(vh - f.h * 0.5, e.clientY - p.dy));
 f.x = nx; f.y = ny; p.loose.style.left = nx + 'px'; p.loose.style.top = ny + 'px';
 });
 window.addEventListener('touchmove', function (e) { if (p && p.active) e.preventDefault(); }, { passive: false });
