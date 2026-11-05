@@ -286,7 +286,39 @@ var REAL = {"fleece": ["h", 70], "puffer": ["h", 66], "bandolera": ["h", 75], "c
 var DIMS = {"img/muscu-capucha-nike.webp":[612,1000],"img/reme-gris-nike.webp":[979,1000],"img/vincha-ninja-nike.webp":[1000,604],"img/campe-nike.webp":[1000,807],"img/chomba-ark-adidas.webp":[1000,842],"img/3-4-blancos.webp":[902,1000],"img/boina-nike.webp":[1000,872],"img/boina-nike-back.webp":[1000,852],"img/3-4-nike-back.webp":[832,1000],"img/muscu-naranja-nike.webp":[911,1000],"img/reme-inter.webp":[1000,890],"img/pollera-adidas-back.webp":[1000,641],"img/muscu-negra-nike-back.webp":[712,1000],"img/3-4-blancos-back.webp":[794,1000],"img/cantimplora-nike.webp":[214,1000],"img/reme-gris-nike-back.webp":[961,1000],"img/reme-celeste-adidas-back.webp":[1000,991],"img/tennis-nike-suela.webp":[815,1000],"img/chomba-ark-adidas-back.webp":[1000,848],"img/3-4-nike.webp":[777,1000],"img/campe-nike-back.webp":[1000,755],"img/reme-celeste-adidas.webp":[1000,992],"img/tabis-blancas-suela.webp":[779,1000],"img/muscu-capucha-nike-back.webp":[602,1000],"img/pant-reebook-back.webp":[547,1000],"img/tabis-negras-suela.webp":[790,1000],"img/muscu-negra-nike.webp":[689,943],"img/cartera-jet.webp":[528,1000],"img/tabis-blancas.webp":[818,1000],"img/campe-blanca-nike.webp":[1000,808],"img/canilleras-nike.webp":[1000,815],"img/nike-ninja-blancas.webp":[843,1000],"img/reme-inter-back.webp":[1000,882],"img/chomba-blanca-adidas.webp":[938,1000],"img/tennis-nike.webp":[932,1000],"img/tabis-negras-frente.webp":[827,1000],"img/muscu-naranja-nike-back.webp":[927,1000],"img/muscu-roja-adidas-back.webp":[828,1000],"img/muscu-roja-adidas.webp":[809,1000],"img/pant-reebook.webp":[541,1000],"img/pollera-adidas.webp":[1000,656],"img/gafas-blancas.webp":[1000,436],"img/chomba-blanca-adidas-back.webp":[908,1000],"revista/rev-01.jpg":[1290,1800]};
 // prendas vendidas: siguen en el catálogo, pero al abrirlas dice VENDIDO y no se pueden consultar ni agregar al carrito
 var SOLD = ['tabisblancas', 'tabisnegras', 'remegris', 'gafas'];
-var BY = {}; ITEMS.forEach(function (x) { x.sold = SOLD.indexOf(x.id) >= 0; x.price = '$ [PRECIO]'; x.size = x.size || '[TALLE]'; BY[x.id] = x; });
+// precios de venta y medidas, tomados de la planilla "Joven Hueso Finanzas" (Drive)
+var PRICES = {
+puffer: ['$ 150.000', 'AXILA 47 CM · LARGO 57 CM'],
+fleece: ['$ 110.000', 'AXILA 50 CM · LARGO 63 CM'],
+zoom: ['$ 70.000', ''],
+pant: ['$ 50.000', 'AXILA 41 CM · LARGO 104 CM'],
+gafas: ['$ 50.000', ''],
+kioto: ['$ 40.000', 'TALLE 40'],
+bolso: ['$ 35.000', ''],
+boina: ['$ 35.000', ''],
+inter: ['$ 30.000', 'AXILA 35 CM · LARGO 53 CM'],
+muscunegra: ['$ 30.000', 'AXILA 50 CM · LARGO 70 CM'],
+capucha: ['$ 30.000', 'AXILA 48 CM · LARGO 57 CM'],
+jean34: ['$ 30.000', 'AXILA 37 CM · LARGO 61 CM'],
+chombaark: ['$ 30.000', 'AXILA 57 CM · LARGO 68 CM'],
+tabisblancas: ['$ 30.000', ''],
+tabisnegras: ['$ 30.000', ''],
+bandolera: ['$ 25.000', ''],
+remeceleste: ['$ 25.000', 'AXILA 41 CM · LARGO 59 CM'],
+muscunaranja: ['$ 25.000', 'AXILA 49 CM · LARGO 60 CM'],
+blanco34: ['$ 20.000', 'AXILA 34 CM · LARGO 67 CM'],
+canilleras: ['$ 20.000', ''],
+pollera: ['$ 20.000', ''],
+muscuroja: ['', 'AXILA 47 CM · LARGO 51 CM'],
+chombablanca: ['', 'AXILA 43 CM · LARGO 60 CM']
+};
+var BY = {}; ITEMS.forEach(function (x) {
+x.sold = SOLD.indexOf(x.id) >= 0;
+var pr = PRICES[x.id] || ['', ''];
+x.price = pr[0] || 'CONSULTAR PRECIO';
+x.measures = pr[1];
+BY[x.id] = x;
+});
 var DEFAULT_ORDER = ['vincha','chombablanca','jean34','bolso','remeceleste','blanco34','gafas','chombaark','tabisblancas','puffer','capucha','kioto','pant','canilleras','bandolera','tabisnegras','muscuroja','boina','fleece','revista','muscunegra','zoom','muscunaranja','remegris','inter','pollera'];
 // cada vez que se carga la página se arma una grilla nueva al azar, mezclando tipos de prenda y sin huecos
 var CAT = {fleece:'out',puffer:'out',bandolera:'acc',vincha:'acc',boina:'acc',canilleras:'acc',gafas:'acc',bolso:'acc',revista:'rev',blanco34:'bot',pant:'bot',jean34:'bot',pollera:'bot',zoom:'shoe',kioto:'shoe',tabisblancas:'shoe',tabisnegras:'shoe'};
@@ -807,7 +839,7 @@ var pad = function (v) { return (v < 10 ? '0' : '') + v; };
 document.getElementById('ovCount').textContent = x.revista ? pad(k + 1) + ' / ' + pad(n) : '';
 document.getElementById('ovName').innerHTML = cap(x);
 document.getElementById('ovPrice').textContent = x.price;
-document.getElementById('ovDetail').textContent = x.revista ? 'FORMATO ' + x.size + ' · EDICIÓN IMPRESA' : 'TALLE ' + x.size + ' · PIEZA ÚNICA';
+document.getElementById('ovDetail').textContent = x.revista ? 'FORMATO A4 · EDICIÓN IMPRESA' : (x.measures ? x.measures + ' · ' : '') + 'PIEZA ÚNICA';
 setConsult(document.getElementById('ovWa'), 'Hola JOVENHUESO! Me interesa ' + x.name + ' by ' + x.brand + '. ¿Sigue disponible?');
 ov.setAttribute('aria-label', x.name + ' by ' + x.brand + (x.sold ? ' — vendido' : ''));
 ov.classList.toggle('is-sold', !!x.sold);
