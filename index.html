@@ -460,6 +460,7 @@ var tray = document.getElementById('tray'), trayBar = document.getElementById('t
 function isMobile() { return cols === 6; }
 function setLookOpen(open) {
 document.body.classList.toggle('look-open', open);
+if (open) followTray(450);
 trayBar.setAttribute('aria-expanded', open ? 'true' : 'false');
 }
 function updateTray() {
@@ -498,7 +499,24 @@ var a = trayArea.getBoundingClientRect(), f = free[id], el = loose[id];
 var nx = Math.min(Math.max(f.x, a.left + 6), a.right - f.w - 6), ny = Math.min(Math.max(f.y, a.top + 6), a.bottom - f.h - 6);
 if (f.y < a.top) { nx = a.left + (a.width - f.w) / 2; ny = a.top + (a.height - f.h) / 2; }
 f.x = nx; f.y = ny; el.style.left = nx + 'px'; el.style.top = ny + 'px';
+f.rx = nx - a.left; f.ry = ny - a.top; // posición dentro de la pizarra
 }
+// reubica las prendas según la pizarra (su alto cambia cuando el navegador del celular muestra u oculta su barra)
+function syncTray() {
+if (!isMobile() || !document.body.classList.contains('look-open')) return;
+var a = trayArea.getBoundingClientRect();
+Object.keys(loose).forEach(function (id) {
+var f = free[id], el = loose[id];
+if (f.rx === undefined || (p && p.active && p.id === id)) return;
+f.x = a.left + f.rx; f.y = a.top + f.ry; el.style.left = f.x + 'px'; el.style.top = f.y + 'px';
+});
+}
+function followTray(ms) {
+var end = Date.now() + ms;
+(function step() { syncTray(); if (Date.now() < end) requestAnimationFrame(step); })();
+}
+window.addEventListener('resize', function () { syncTray(); });
+window.addEventListener('scroll', function () { syncTray(); }, { passive: true });
 
 var p = null, holdTimer = null, openTimer = null;
 board.addEventListener('pointerdown', function (e) {
