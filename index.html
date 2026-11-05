@@ -590,20 +590,25 @@ if (!ids.length && done) done();
 
 // ---- guardar una foto del look armado (se dibuja la pizarra con sus prendas)
 function lookPhoto() {
-var area = trayArea.getBoundingClientRect(), sc = Math.max(2, window.devicePixelRatio || 1);
-var pad = 28, head = 46;
-var cv = document.createElement('canvas');
-cv.width = Math.round(area.width * sc); cv.height = Math.round((area.height + head) * sc);
+// foto vertical 1080×1920 (pantalla de celular): fondo blanco, logo arriba al centro y el look centrado ocupando el espacio
+var W = 1080, H = 1920, M = 90, TOP = 230;
+var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
 var cx = cv.getContext('2d');
-cx.scale(sc, sc);
-cx.fillStyle = '#fff'; cx.fillRect(0, 0, area.width, area.height + head);
-cx.strokeStyle = '#C8C8C8'; cx.lineWidth = 1; cx.strokeRect(0.5, head + 0.5, area.width - 1, area.height - 1);
+cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H);
 var logo = document.querySelector('header .logo img');
-if (logo && logo.complete) { var lh = 30, lw = lh * logo.naturalWidth / logo.naturalHeight; cx.drawImage(logo, (area.width - lw) / 2, (head - lh) / 2, lw, lh); }
-lookIds().sort(function (a, b) { return (+loose[a].style.zIndex || 0) - (+loose[b].style.zIndex || 0); }).forEach(function (id) {
+if (logo && logo.complete) { var lh = 110, lw = lh * logo.naturalWidth / logo.naturalHeight; cx.drawImage(logo, (W - lw) / 2, 70, lw, lh); }
+var ids = lookIds().sort(function (a, b) { return (+loose[a].style.zIndex || 0) - (+loose[b].style.zIndex || 0); });
+var parts = ids.map(function (id) {
 var im = loose[id].querySelector(flipped && BY[id].b ? '.jh-back img' : '.jh-face:not(.jh-back) img');
-var r = im.getBoundingClientRect();
-try { cx.drawImage(im, r.left - area.left, r.top - area.top + head, r.width, r.height); } catch (err) {}
+return { im: im, r: im.getBoundingClientRect() };
+});
+var x0 = Math.min.apply(null, parts.map(function (q) { return q.r.left; })), y0 = Math.min.apply(null, parts.map(function (q) { return q.r.top; }));
+var x1 = Math.max.apply(null, parts.map(function (q) { return q.r.right; })), y1 = Math.max.apply(null, parts.map(function (q) { return q.r.bottom; }));
+var bw = x1 - x0, bh = y1 - y0, boxW = W - 2 * M, boxH = H - TOP - M;
+var k = Math.min(boxW / bw, boxH / bh, 4);
+var ox = M + (boxW - bw * k) / 2, oy = TOP + (boxH - bh * k) / 2;
+parts.forEach(function (q) {
+try { cx.drawImage(q.im, ox + (q.r.left - x0) * k, oy + (q.r.top - y0) * k, q.r.width * k, q.r.height * k); } catch (err) {}
 });
 cv.toBlob(function (blob) {
 if (!blob) return;
