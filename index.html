@@ -935,9 +935,23 @@ b.textContent = inCart ? 'EN EL CARRITO ✓  QUITAR' : 'AGREGAR AL CARRITO';
 }
 document.getElementById('ovAdd').addEventListener('click', function () {
 var i = cart.indexOf(cur);
-if (i >= 0) cart.splice(i, 1); else cart.push(cur);
-saveCart(); renderCart();
-if (i < 0) { var cb = document.getElementById('cartBtn'); cb.classList.remove('pop'); void cb.offsetWidth; cb.classList.add('pop'); }
+if (i >= 0) { cart.splice(i, 1); saveCart(); renderCart(); return; }
+cart.push(cur); saveCart(); renderCart();
+// la prenda "se esfuma" hacia la bolsa, igual que al agregar el look, y se cierra la vista
+var im = ovBox.querySelector('img'), btn = this;
+btn.disabled = true;
+var finish = function () {
+btn.disabled = false;
+ov.classList.remove('open');
+var cb = document.getElementById('cartBtn'); cb.classList.remove('pop'); void cb.offsetWidth; cb.classList.add('pop');
+if (cards[cur]) cards[cur].focus({ preventScroll: true });
+};
+if (!im || !im.animate) { finish(); return; }
+im.animate([
+{ opacity: 1, filter: 'blur(0px)', transform: 'translateY(0) scale(1)' },
+{ opacity: .6, filter: 'blur(3px)', transform: 'translateY(-18px) scale(1.04)', offset: .45 },
+{ opacity: 0, filter: 'blur(14px)', transform: 'translateY(-60px) scale(1.12)' }
+], { duration: 1100, easing: 'ease-out', fill: 'forwards' }).onfinish = finish;
 });
 document.getElementById('cartList').addEventListener('click', function (e) {
 var b = e.target.closest('[data-rm]'); if (!b) return;
