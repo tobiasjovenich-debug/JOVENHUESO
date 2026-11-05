@@ -38,7 +38,13 @@ main{width:100%;margin:0;padding:8px var(--gap) 96px calc(var(--piz) + 2 * var(-
 .jh-face .jh-cap{position:relative;z-index:1}
 .jh-pizarra{position:fixed;z-index:1;box-sizing:border-box;border:1px solid #C8C8C8;background:#fff;padding:7px 9px;pointer-events:none;display:none}
 .jh-pizarra.on{display:block}
-.jh-pizarra .jh-tray-actions{display:flex;position:absolute;left:9px;right:9px;bottom:9px;padding:0;pointer-events:auto}
+.jh-pizarra .jh-tray-actions{display:flex;position:absolute;left:9px;right:9px;bottom:38px;padding:0;pointer-events:auto;background:#fff;opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity .25s ease,transform .25s ease,visibility .25s}
+.jh-pizarra.menu-open .jh-tray-actions{opacity:1;visibility:visible;transform:none}
+.jh-piz-toggle{all:unset;position:absolute;left:50%;bottom:4px;transform:translateX(-50%);width:44px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:auto;color:#111}
+.jh-piz-toggle:hover{background:#F2F2F2}
+.jh-piz-toggle:focus-visible{outline:2px solid #111}
+.jh-piz-toggle svg{transition:transform .25s ease}
+.jh-pizarra.menu-open .jh-piz-toggle svg{transform:rotate(180deg)}
 .jh-pizarra .jh-tray-actions .jh-wa,.jh-pizarra .jh-tray-actions .jh-add{min-height:40px;font-size:9px;padding:0 10px}
 .jh-pizarra .jh-tray-hint{top:40%}
 .jh-empty .jh-inner{visibility:hidden}
@@ -177,7 +183,7 @@ main{padding-left:16px}
 </header>
 <main>
 <div class="jh-board" id="board">
-<div class="jh-pizarra" id="pizL"><span class="jh-cap">ARMÁ TU <b>LOOK</b> <span id="pizCount"></span></span><span class="jh-tray-hint" id="pizHint">ARRASTRÁ PRENDAS ACÁ PARA ARMAR TU LOOK</span></div>
+<div class="jh-pizarra" id="pizL"><span class="jh-cap">ARMÁ TU <b>LOOK</b> <span id="pizCount"></span></span><span class="jh-tray-hint" id="pizHint">ARRASTRÁ PRENDAS ACÁ PARA ARMAR TU LOOK</span><button type="button" class="jh-piz-toggle" id="pizToggle" aria-expanded="false" aria-label="Opciones del look"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button></div>
 <div class="jh-grid" id="grid"></div>
 </div>
 </main>
@@ -639,6 +645,10 @@ document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObje
 }
 }, 'image/png');
 }
+document.getElementById('pizToggle').addEventListener('click', function () {
+var open = !pizL.classList.contains('menu-open');
+pizL.classList.toggle('menu-open', open); this.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
 document.getElementById('lookPhoto').addEventListener('click', function () { if (lookIds().length) lookPhoto(); });
 
 document.getElementById('lookClear').addEventListener('click', function () { clearLoose(true); updateTray(); setLookFull(false); });
@@ -653,13 +663,21 @@ f.rx = nx - a.left; f.ry = ny - a.top; // posición dentro de la pizarra
 }
 // reubica las prendas según la pizarra (su alto cambia cuando el navegador del celular muestra u oculta su barra)
 function syncTray() {
-if (!isMobile() || !document.body.classList.contains('look-open')) return;
-var a = trayArea.getBoundingClientRect();
+var a;
+if (isMobile()) { if (!document.body.classList.contains('look-open')) return; a = trayArea.getBoundingClientRect(); }
+else { if (!pizL.classList.contains('on')) return; a = pizL.getBoundingClientRect(); }
 Object.keys(loose).forEach(function (id) {
 var f = free[id], el = loose[id];
 if (f.rx === undefined || (p && p.active && p.id === id)) return;
-f.x = a.left + f.rx; f.y = a.top + f.ry; el.style.left = f.x + 'px'; el.style.top = f.y + 'px';
+f.x = a.left + f.rx; f.y = Math.min(a.top + f.ry, a.bottom - f.h * 0.5); el.style.left = f.x + 'px'; el.style.top = f.y + 'px';
 });
+}
+// compu: al soltar una prenda sobre la pizarra queda anclada a ella; fuera de la pizarra queda fija en la pantalla
+function anchorToPizarra(id) {
+var f = free[id]; if (!f) return;
+var pr = pizL.getBoundingClientRect(), cx = f.x + f.w / 2, cy = f.y + f.h / 2;
+if (pizL.classList.contains('on') && cx >= pr.left && cx <= pr.right && cy >= pr.top && cy <= pr.bottom) { f.rx = f.x - pr.left; f.ry = f.y - pr.top; }
+else { delete f.rx; delete f.ry; }
 }
 function followTray(ms) {
 var end = Date.now() + ms;
@@ -728,7 +746,7 @@ if (q.active) {
 q.loose.classList.remove('jh-lifted');
 cards[q.id].classList.remove('jh-home', 'hot');
 if (q.home) { returnHome(q.id, true); updateTray(); return; }
-if (!isMobile()) updateTray();
+if (!isMobile()) { anchorToPizarra(q.id); updateTray(); }
 if (isMobile()) {
 tray.classList.remove('hot');
 if (q.tray) {
