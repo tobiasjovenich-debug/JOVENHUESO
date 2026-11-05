@@ -209,6 +209,7 @@ main{padding-left:16px}
 <div class="jh-tray-area" id="trayArea"><span class="jh-tray-hint" id="trayHint">MANTENÉ APRETADA UNA PRENDA Y ARRASTRALA ACÁ</span></div>
 <div class="jh-tray-actions" id="trayActions">
 <button type="button" class="jh-add" id="lookToCart">AGREGAR TODO AL CARRITO</button>
+<button type="button" class="jh-add" id="lookPhoto">GUARDAR FOTO DEL LOOK</button>
 <a class="jh-wa" id="lookWa" href="#" target="_blank" rel="noopener">CONSULTAR ESTE LOOK POR WHATSAPP</a>
 <button type="button" class="jh-link" id="lookClear">VACIAR LOOK</button>
 </div>
@@ -493,6 +494,7 @@ var toAdd = avail.filter(function (id) { return cart.indexOf(id) < 0; });
 var btn = document.getElementById('lookToCart');
 if (!btn.dataset.flash) btn.textContent = avail.length && !toAdd.length ? 'TODO EL LOOK ESTÁ EN EL CARRITO ✓' : 'AGREGAR TODO AL CARRITO' + (toAdd.length ? ' (' + toAdd.length + ')' : '');
 btn.disabled = !toAdd.length;
+document.getElementById('lookPhoto').disabled = !n;
 var wa = document.getElementById('lookWa');
 if (avail.length) {
 wa.href = waLink('Hola JOVENHUESO! Armé este look y me interesan estas prendas, ¿siguen disponibles?\n' + avail.map(function (id) { return '- ' + BY[id].name + ' by ' + BY[id].brand; }).join('\n'));
@@ -540,10 +542,65 @@ var btn = this, added = 0;
 lookIds().forEach(function (id) { if (!BY[id].sold && cart.indexOf(id) < 0) { cart.push(id); added++; } });
 if (!added) return;
 saveCart(); renderCart();
-var cb = document.getElementById('cartBtn'); cb.classList.remove('pop'); void cb.offsetWidth; cb.classList.add('pop');
 btn.dataset.flash = '1'; btn.textContent = added === 1 ? '1 PRENDA AGREGADA ✓' : added + ' PRENDAS AGREGADAS ✓';
-setTimeout(function () { delete btn.dataset.flash; updateTray(); }, 1600);
+smokeLook(function () {
+var cb = document.getElementById('cartBtn'); cb.classList.remove('pop'); void cb.offsetWidth; cb.classList.add('pop');
+delete btn.dataset.flash; updateTray();
 });
+});
+// el look "se esfuma" hacia arriba (como guardándose en la bolsa) y las prendas vuelven quietas a la grilla
+function smokeLook(done) {
+var ids = lookIds(), i = 0;
+ids.forEach(function (id, n) {
+var el = loose[id];
+var fin = function () {
+if (loose[id]) { loose[id].remove(); delete loose[id]; delete free[id]; cards[id].classList.remove('jh-empty', 'jh-home', 'hot'); cards[id].tabIndex = 0; }
+if (++i === ids.length) { updateTray(); setTimeout(function () { setLookOpen(false); if (done) done(); }, 250); }
+};
+if (!el.animate) { fin(); return; }
+var a = el.animate([
+{ opacity: 1, filter: 'blur(0px)', transform: 'translateY(0) scale(1)' },
+{ opacity: .6, filter: 'blur(3px)', transform: 'translateY(-18px) scale(1.04)', offset: .45 },
+{ opacity: 0, filter: 'blur(14px)', transform: 'translateY(-60px) scale(1.12)' }
+], { duration: 1100, delay: n * 120, easing: 'ease-out', fill: 'forwards' });
+a.onfinish = fin;
+});
+if (!ids.length && done) done();
+}
+
+// ---- guardar una foto del look armado (se dibuja la pizarra con sus prendas)
+function lookPhoto() {
+var area = trayArea.getBoundingClientRect(), sc = Math.max(2, window.devicePixelRatio || 1);
+var pad = 28, head = 46;
+var cv = document.createElement('canvas');
+cv.width = Math.round(area.width * sc); cv.height = Math.round((area.height + head) * sc);
+var cx = cv.getContext('2d');
+cx.scale(sc, sc);
+cx.fillStyle = '#fff'; cx.fillRect(0, 0, area.width, area.height + head);
+cx.strokeStyle = '#C8C8C8'; cx.lineWidth = 1; cx.strokeRect(0.5, head + 0.5, area.width - 1, area.height - 1);
+cx.fillStyle = '#3A3A3A'; cx.font = '200 10px Archivo, Arial'; cx.textBaseline = 'middle';
+cx.fillText('ARMÁ TU', 2, head / 2);
+var w1 = cx.measureText('ARMÁ TU ').width; cx.font = '700 10px Archivo, Arial'; cx.fillStyle = '#111'; cx.fillText('LOOK', 2 + w1, head / 2);
+var logo = document.querySelector('header .logo img');
+if (logo && logo.complete) { var lh = 30, lw = lh * logo.naturalWidth / logo.naturalHeight; cx.drawImage(logo, area.width - lw - 2, (head - lh) / 2, lw, lh); }
+lookIds().sort(function (a, b) { return (+loose[a].style.zIndex || 0) - (+loose[b].style.zIndex || 0); }).forEach(function (id) {
+var im = loose[id].querySelector(flipped && BY[id].b ? '.jh-back img' : '.jh-face:not(.jh-back) img');
+var r = im.getBoundingClientRect();
+try { cx.drawImage(im, r.left - area.left, r.top - area.top + head, r.width, r.height); } catch (err) {}
+});
+cv.toBlob(function (blob) {
+if (!blob) return;
+var file = new File([blob], 'jovenhueso-look.png', { type: 'image/png' });
+if (navigator.canShare && navigator.canShare({ files: [file] })) {
+navigator.share({ files: [file], title: 'Mi look JOVENHUESO' }).catch(function () {});
+} else {
+var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'jovenhueso-look.png';
+document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+}, 'image/png');
+}
+document.getElementById('lookPhoto').addEventListener('click', function () { if (lookIds().length) lookPhoto(); });
+
 document.getElementById('lookClear').addEventListener('click', function () { clearLoose(true); updateTray(); setLookFull(false); });
 function overTray(x, y) { var r = tray.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; }
 function placeInTray(id) {
