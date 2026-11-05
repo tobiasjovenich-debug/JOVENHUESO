@@ -112,7 +112,8 @@ footer a{text-decoration:none}
 /* ---- bandeja ARMÁ TU LOOK (solo celular) ---- */
 .jh-tray{display:none}
 body.is-mobile .jh-tray{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:5;flex-direction:column;background:#fff;border-top:1px solid #C8C8C8;height:52px;transition:height .35s cubic-bezier(.2,.7,.2,1);touch-action:none}
-body.is-mobile.look-open .jh-tray{height:68vh}
+body.is-mobile.look-open .jh-tray{height:62vh}
+.jh-tray.dragging{transition:none}
 .jh-tray-bar{all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:12px;height:52px;padding:0 16px;flex-shrink:0;cursor:pointer}
 .jh-tray-bar .jh-cap{font-size:10px}
 .jh-tray-bar svg{transition:transform .35s ease}
@@ -464,7 +465,30 @@ var n = Object.keys(loose).length;
 document.getElementById('trayCount').textContent = n ? '(' + n + ')' : '';
 document.getElementById('trayHint').style.display = n ? 'none' : '';
 }
-trayBar.addEventListener('click', function () { setLookOpen(!document.body.classList.contains('look-open')); });
+trayBar.addEventListener('click', function () {
+if (traySwiped) { traySwiped = false; return; }
+setLookOpen(!document.body.classList.contains('look-open'));
+});
+// deslizar el dedo hacia abajo sobre la pizarra (en la barra o en una zona vacía) la cierra
+var traySwipe = null, traySwiped = false;
+tray.addEventListener('pointerdown', function (e) {
+if (!document.body.classList.contains('look-open')) return;
+traySwipe = { y0: e.clientY, dy: 0 };
+});
+window.addEventListener('pointermove', function (e) {
+if (!traySwipe) return;
+var dy = Math.max(0, e.clientY - traySwipe.y0);
+traySwipe.dy = dy;
+if (dy > 6) { tray.classList.add('dragging'); tray.style.transform = 'translateY(' + dy + 'px)'; }
+});
+function endTraySwipe() {
+if (!traySwipe) return;
+var dy = traySwipe.dy; traySwipe = null;
+tray.classList.remove('dragging'); tray.style.transform = '';
+if (dy > 60) { traySwiped = true; setLookOpen(false); setTimeout(function () { traySwiped = false; }, 400); }
+}
+window.addEventListener('pointerup', endTraySwipe);
+window.addEventListener('pointercancel', endTraySwipe);
 function overTray(x, y) { var r = tray.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; }
 function placeInTray(id) {
 // deja la prenda dentro de la pizarra (si se soltó sobre la barra, va al centro)
