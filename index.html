@@ -967,6 +967,7 @@ if (ghost && ghost.animate) {
 var g = ghost.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(' + (-d * W) + 'px)' }], T);
 g.onfinish = function () { ghost.remove(); };
 } else if (ghost) ghost.remove();
+if (im) im.style.animation = 'none'; // sin el zoom de apertura al pasar
 if (im && im.animate) { var a = im.animate([{ transform: 'translateX(' + (d * W + from) + 'px)' }, { transform: 'translateX(0)' }], T); a.onfinish = function () { a.cancel(); }; }
 }
 document.getElementById('ovPrev').addEventListener('click', function () { stepOv(-1); });
