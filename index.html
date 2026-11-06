@@ -497,7 +497,7 @@ function hSet(i, anim, extra) {
   hTrack.style.transition = anim ? EASE : 'none';
   hTrack.style.transform = 'translateX(calc(' + (-i * 100) + '% + ' + (extra || 0) + 'px))';
 }
-function hAuto() { clearInterval(hTimer); hTimer = setInterval(function () { heroGo(hCur + 1); }, 4500); }
+function hAuto() { clearInterval(hTimer); hTimer = setInterval(function () { heroGo(hCur + 1); }, 60000); }
 function heroGo(n) {
   if (n < 0) { hSet(hN, false); hTrack.getBoundingClientRect(); n = hN - 1; } // hacia atrás desde la primera: salto a la copia del final
   hCur = n; hSet(hCur, true); hAuto();
@@ -1026,23 +1026,16 @@ b.textContent = inCart ? 'EN EL CARRITO ✓  QUITAR' : 'AGREGAR AL CARRITO';
 }
 document.getElementById('ovAdd').addEventListener('click', function () {
 var i = cart.indexOf(cur);
-if (i >= 0) { cart.splice(i, 1); saveCart(); renderCart(); return; }
+var im = ovBox.querySelector('img');
+if (i >= 0) { cart.splice(i, 1); saveCart(); renderCart(); if (im && im.getAnimations) im.getAnimations().forEach(function (an) { an.cancel(); }); return; }
 cart.push(cur); saveCart(); renderCart();
-// la prenda "se esfuma" hacia la bolsa, igual que al agregar el look, y se cierra la vista
-var im = ovBox.querySelector('img'), btn = this;
-btn.disabled = true;
-var finish = function () {
-btn.disabled = false;
-ov.classList.remove('open');
+// la prenda se esfuma en su lugar y la vista queda abierta (vacía) hasta que se cierre a mano
 var cb = document.getElementById('cartBtn'); cb.classList.remove('pop'); void cb.offsetWidth; cb.classList.add('pop');
-if (cards[cur]) cards[cur].focus({ preventScroll: true });
-};
-if (!im || !im.animate) { finish(); return; }
+if (!im || !im.animate) return;
 im.animate([
-{ opacity: 1, filter: 'blur(0px)', transform: 'translateY(0) scale(1)' },
-{ opacity: .6, filter: 'blur(3px)', transform: 'translateY(-18px) scale(1.04)', offset: .45 },
-{ opacity: 0, filter: 'blur(14px)', transform: 'translateY(-60px) scale(1.12)' }
-], { duration: 1100, easing: 'ease-out', fill: 'forwards' }).onfinish = finish;
+{ opacity: 1, filter: 'blur(0px)' },
+{ opacity: 0, filter: 'blur(6px)' }
+], { duration: 600, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' });
 });
 document.getElementById('cartList').addEventListener('click', function (e) {
 var b = e.target.closest('[data-rm]'); if (!b) return;
