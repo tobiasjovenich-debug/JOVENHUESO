@@ -15,7 +15,11 @@ a{color:#111}a:hover{color:#555}
 .jh-hero-logo{position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:2}
 .jh-hero-logo img{height:40px;width:auto;display:block}
 .jh-hero-img{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(84vw,190svh);height:auto;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none;opacity:0;transition:opacity .9s ease}
-.jh-hero-img.in{opacity:1}
+.jh-hero-img.on{opacity:1}
+.jh-hero-dots{position:absolute;left:50%;bottom:84px;transform:translateX(-50%);display:flex;gap:8px;z-index:2}
+.jh-hero-dots button{width:34px;height:24px;border:0;background:none;padding:0;cursor:pointer;display:flex;align-items:center}
+.jh-hero-dots button::after{content:"";display:block;width:100%;height:2px;background:#d4d4d4;transition:background .3s}
+.jh-hero-dots button.on::after{background:#111}
 .jh-hero-down{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:54px;height:54px;border:0;background:none;padding:0;cursor:pointer;color:#111;display:flex;align-items:center;justify-content:center;animation:jhBob 2.2s ease-in-out infinite}
 .jh-hero-down svg{width:26px;height:26px}
 @keyframes jhBob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,7px)}}
@@ -198,7 +202,10 @@ main{padding-left:16px}
 <body>
 <section class="jh-hero" id="hero" aria-label="Editorial JOVENHUESO Vol. 01">
 <a class="jh-hero-logo" href="https://www.instagram.com/jovenhueso.revista/" target="_blank" rel="noopener" aria-label="Instagram de JOVENHUESO"><img src="img/logo.png" alt="JOVENHUESO"></a>
-<img class="jh-hero-img" id="heroImg" src="revista/rev-03.jpg" alt="Editorial JOVENHUESO Vol. 01" fetchpriority="high" onload="this.classList.add('in')">
+<img class="jh-hero-img on" src="revista/rev-03.jpg" alt="Editorial JOVENHUESO Vol. 01 · Look Inter" fetchpriority="high">
+<img class="jh-hero-img" src="revista/rev-06.jpg" alt="Editorial JOVENHUESO Vol. 01 · Look negro" loading="eager">
+<img class="jh-hero-img" src="revista/rev-09.jpg" alt="Editorial JOVENHUESO Vol. 01 · Look blanco" loading="eager">
+<div class="jh-hero-dots" id="heroDots"><button type="button" class="on" aria-label="Editorial 1"></button><button type="button" aria-label="Editorial 2"></button><button type="button" aria-label="Editorial 3"></button></div>
 <button type="button" class="jh-hero-down" id="heroDown" aria-label="Ver el catálogo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
 </section>
 <header id="top">
@@ -484,7 +491,23 @@ var hero = document.getElementById('hero');
 function heroState() { document.body.classList.toggle('on-hero', hero.getBoundingClientRect().bottom > window.innerHeight * 0.35); }
 window.addEventListener('scroll', heroState, { passive: true }); heroState();
 document.getElementById('heroDown').addEventListener('click', function () { document.getElementById('top').scrollIntoView({ behavior: 'smooth' }); });
-var hImg = document.getElementById('heroImg'); if (hImg.complete) hImg.classList.add('in');
+// portada: las editoriales se van pasando solas (y se pueden pasar deslizando o con las rayitas)
+var hSlides = hero.querySelectorAll('.jh-hero-img'), hDots = document.querySelectorAll('#heroDots button'), hCur = 0, hTimer = null;
+function heroGo(n) {
+  hCur = (n + hSlides.length) % hSlides.length;
+  hSlides.forEach(function (im, i) { im.classList.toggle('on', i === hCur); });
+  hDots.forEach(function (d, i) { d.classList.toggle('on', i === hCur); });
+  clearInterval(hTimer); hTimer = setInterval(function () { heroGo(hCur + 1); }, 5000);
+}
+hDots.forEach(function (d, i) { d.addEventListener('click', function () { heroGo(i); }); });
+var hx = null, hy = null;
+hero.addEventListener('touchstart', function (e) { hx = e.touches[0].clientX; hy = e.touches[0].clientY; }, { passive: true });
+hero.addEventListener('touchend', function (e) {
+  if (hx === null) return;
+  var dx = e.changedTouches[0].clientX - hx, dy = e.changedTouches[0].clientY - hy; hx = null;
+  if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) heroGo(hCur + (dx < 0 ? 1 : -1));
+}, { passive: true });
+heroGo(0);
 function setRows() {
 // recuadros cuadrados: el alto de cada fila es igual al ancho de una columna
 var g = parseFloat(getComputedStyle(grid).columnGap) || GAP;
