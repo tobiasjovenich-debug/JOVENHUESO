@@ -14,7 +14,7 @@ a{color:#111}a:hover{color:#555}
 header{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;padding:16px 32px 20px;gap:16px}
 header .logo img{height:40px;width:auto;display:block}
 .tools{display:flex;justify-content:flex-end;gap:4px}
-.jh-icon{all:unset;box-sizing:border-box;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#111;transition:background .15s}
+.jh-icon{all:unset;box-sizing:border-box;cursor:pointer;width:50px;height:50px;display:flex;align-items:center;justify-content:center;color:#111;transition:background .15s}
 .jh-icon:hover{background:#F2F2F2}
 .jh-icon:focus-visible{outline:2px solid #111;outline-offset:2px}
 .jh-icon svg{transition:transform .6s cubic-bezier(.2,.7,.2,1)}
@@ -26,12 +26,12 @@ main{width:100%;margin:0;padding:8px var(--gap) 96px calc(var(--piz) + 2 * var(-
 .jh-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-auto-rows:90px;gap:var(--gap)}
 .jh-card{all:unset;box-sizing:border-box;display:block;position:relative;cursor:grab;perspective:2000px;min-width:0;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .jh-card:focus-visible{outline:2px solid #111;outline-offset:3px}
-.jh-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+.jh-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.45,.05,.55,.95);transition-delay:var(--d,0s)}
 .jh-flipped .jh-inner{transform:rotateY(180deg)}
 .jh-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:#fff;border:1px solid #C8C8C8;display:flex;flex-direction:column;padding:7px 9px 10px;transition:border-color .2s}
 .jh-back{transform:rotateY(180deg)}
 /* algunos celulares (sobre todo iPhone) no esconden bien la cara de atrás al girar: se oculta explícitamente a mitad del giro */
-.jh-face{transition:border-color .2s,visibility 0s linear .38s}
+.jh-face{transition:border-color .2s,visibility 0s linear calc(var(--d,0s) + .4s)}
 .jh-back{visibility:hidden}
 .jh-flipped .jh-back{visibility:visible}
 .jh-flipped .jh-face:not(.jh-back){visibility:hidden}
@@ -48,7 +48,7 @@ main{width:100%;margin:0;padding:8px var(--gap) 96px calc(var(--piz) + 2 * var(-
 .jh-pizarra.menu-open .jh-tray-actions{opacity:1;visibility:visible;transform:none}
 .jh-pizarra.menu-open{background:transparent}
 .jh-pizarra.menu-open .jh-tray-actions{box-shadow:0 -12px 0 12px #fff}
-.jh-piz-toggle{all:unset;position:absolute;left:50%;bottom:4px;transform:translateX(-50%);width:44px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:auto;color:#111}
+.jh-piz-toggle{all:unset;position:absolute;left:50%;bottom:4px;transform:translateX(-50%);width:54px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:auto;color:#111}
 .jh-piz-toggle:hover{background:#F2F2F2}
 .jh-piz-toggle:focus-visible{outline:2px solid #111}
 .jh-piz-toggle svg{transition:transform .25s ease}
@@ -90,18 +90,18 @@ footer a{text-decoration:none}
 .jh-ov-box img{max-width:100%;max-height:100%;object-fit:contain;display:block;animation:jhZoom .45s cubic-bezier(.2,.7,.2,1)}
 .jh-ov-info{display:flex;flex-direction:column;align-items:center;gap:10px;padding:24px 24px 48px;text-align:center}
 .jh-count{font-size:9px;letter-spacing:.14em;color:#555;font-weight:300}
-.jh-arrow{all:unset;cursor:pointer;width:56px;height:56px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.jh-arrow{all:unset;cursor:pointer;width:62px;height:62px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .jh-arrow:hover{background:#F2F2F2}
 .jh-arrow:focus-visible{outline:2px solid #111}
 .jh-arrow[hidden]{display:none}
-.jh-wa{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 28px;margin-top:12px;background:#111;color:#fff;text-decoration:none;font-weight:600;font-size:10px;letter-spacing:.14em}
+.jh-wa{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 30px;margin-top:12px;background:#111;color:#fff;text-decoration:none;font-weight:600;font-size:10px;letter-spacing:.14em}
 .jh-wa:hover{background:#F7941D;color:#111}
 .jh-icon{position:relative}
 .jh-badge{position:absolute;top:6px;right:5px;min-width:15px;height:15px;padding:0 4px;box-sizing:border-box;border-radius:8px;background:#111;color:#fff;font-size:9px;font-weight:600;line-height:15px;text-align:center;display:none}
 .jh-badge.on{display:block}
 .jh-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px}
 .jh-actions .jh-wa{margin-top:0}
-.jh-add{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 28px;background:#fff;color:#111;border:1px solid #111;cursor:pointer;font:inherit;font-weight:600;font-size:10px;letter-spacing:.14em}
+.jh-add{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 30px;background:#fff;color:#111;border:1px solid #111;cursor:pointer;font:inherit;font-weight:600;font-size:10px;letter-spacing:.14em}
 .jh-add:hover{background:#111;color:#fff}
 .jh-add.in{border-color:#C8C8C8;color:#555}
 .jh-add.in:hover{background:#fff;color:#111;border-color:#111}
@@ -121,7 +121,7 @@ footer a{text-decoration:none}
 .jh-cart-list .nm{display:flex;flex-direction:column;gap:4px;min-width:0}
 .jh-cart-list .nm .jh-cap{font-size:9px;white-space:normal}
 .jh-cart-list .pr{font-size:10px;letter-spacing:.08em;font-weight:300}
-.jh-x{all:unset;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
+.jh-x{all:unset;cursor:pointer;width:40px;height:40px;display:flex;align-items:center;justify-content:center}
 .jh-x:hover{background:#F2F2F2}
 .jh-x:focus-visible{outline:2px solid #111}
 .jh-cart-empty{padding:40px 20px;font-size:10px;letter-spacing:.12em;color:#555;font-weight:300;text-align:center}
@@ -132,6 +132,15 @@ footer a{text-decoration:none}
 .jh-cart-total b{font-size:13px;letter-spacing:.06em;font-weight:600}
 .jh-cart-total small{display:block;font-size:8px;letter-spacing:.1em;color:#555;font-weight:300;margin-top:4px}
 .jh-cart-note{font-size:9px;letter-spacing:.1em;color:#555;font-weight:300;text-align:center}
+/* botones un poco más grandes */
+.jh-icon svg{width:23px;height:23px}
+.jh-arrow svg{width:26px;height:26px}
+.jh-piz-toggle svg{width:20px;height:20px}
+.jh-tray-bar svg{width:20px;height:20px}
+.jh-x svg{width:18px;height:18px}
+.jh-wa,.jh-add{font-size:11px}
+.jh-tray-bar .jh-cap{font-size:11px}
+.jh-badge{min-width:17px;height:17px;line-height:17px;font-size:10px;border-radius:9px}
 @keyframes jhFade{from{opacity:0}to{opacity:1}}
 @keyframes jhZoom{from{transform:scale(.82);opacity:0}to{transform:scale(1);opacity:1}}
 /* ---- bandeja ARMÁ TU LOOK (solo celular) ---- */
@@ -423,7 +432,8 @@ ORDER.forEach(function (id, i) {
 var x = BY[id];
 var el = document.createElement('button');
 el.type = 'button'; el.className = 'jh-card'; el.setAttribute('data-jh-id', id); el.setAttribute('aria-label', x.name + ' by ' + x.brand);
-el.innerHTML = '<div class="jh-inner" style="transition-delay:' + (i * 0.025).toFixed(3) + 's">' +
+el.style.setProperty('--d', (i * 0.025).toFixed(3) + 's');
+el.innerHTML = '<div class="jh-inner">' +
 '<div class="jh-face"><span class="jh-dot"></span><span class="jh-cap">' + cap(x) + '</span><div class="jh-img"><img src="' + x.f + '" alt="" draggable="false"></div></div>' +
 '<div class="jh-face jh-back"><span class="jh-dot"></span><span class="jh-cap">' + cap(x) + '</span><div class="jh-img"><img src="' + (x.b || x.f) + '" alt="" draggable="false"></div></div></div>';
 el.addEventListener('click', function (e) { if (e.detail === 0) openItem(id); });
@@ -676,12 +686,12 @@ if (!ids.length && done) done();
 // ---- guardar una foto del look armado (se dibuja la pizarra con sus prendas)
 function lookPhoto(handle) {
 // foto vertical 1080×1920 (pantalla de celular): fondo blanco, logo arriba al centro y el look centrado ocupando el espacio
-var W = 1080, H = 1920, M = 90, TOP = 230;
+var W = 1080, H = 1920, M = 90, TOP = 110;
 var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
 var cx = cv.getContext('2d');
 cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H);
 var logo = document.querySelector('header .logo img');
-if (logo && logo.complete) { var lh = 110, lw = lh * logo.naturalWidth / logo.naturalHeight; cx.drawImage(logo, (W - lw) / 2, 70, lw, lh); }
+
 var ids = lookIds().sort(function (a, b) { return (+loose[a].style.zIndex || 0) - (+loose[b].style.zIndex || 0); });
 var parts = ids.map(function (id) {
 var im = loose[id].querySelector(flipped && BY[id].b ? '.jh-back img' : '.jh-face:not(.jh-back) img');
@@ -689,12 +699,14 @@ return { im: im, r: im.getBoundingClientRect() };
 });
 var x0 = Math.min.apply(null, parts.map(function (q) { return q.r.left; })), y0 = Math.min.apply(null, parts.map(function (q) { return q.r.top; }));
 var x1 = Math.max.apply(null, parts.map(function (q) { return q.r.right; })), y1 = Math.max.apply(null, parts.map(function (q) { return q.r.bottom; }));
-var bw = x1 - x0, bh = y1 - y0, boxW = W - 2 * M, boxH = H - TOP - M;
+var bw = x1 - x0, bh = y1 - y0, boxW = W - 2 * M, boxH = H - TOP - M - 60;
 var k = Math.min(boxW / bw, boxH / bh, 4);
 var ox = M + (boxW - bw * k) / 2, oy = TOP + (boxH - bh * k) / 2;
 parts.forEach(function (q) {
 try { cx.drawImage(q.im, ox + (q.r.left - x0) * k, oy + (q.r.top - y0) * k, q.r.width * k, q.r.height * k); } catch (err) {}
 });
+// logo chico, abajo a la derecha
+if (logo && logo.complete) { var lh = 52, lw = lh * logo.naturalWidth / logo.naturalHeight; cx.drawImage(logo, W - 56 - lw, H - 56 - lh, lw, lh); }
 cv.toBlob(function (blob) {
 if (!blob) return;
 if (handle) {
