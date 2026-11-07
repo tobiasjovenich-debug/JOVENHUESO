@@ -21,7 +21,7 @@ a{color:#111}a:hover{color:#555}
 /* cada pose por separado, con el mismo aire entre poses y contra los bordes de la pantalla (space-evenly)
    --s: escala de la foto original para que las personas se vean del mismo tamaño en todas las editoriales
    --sr: suma de proporciones de las poses, para que en pantallas angostas entren todas */
-.jh-hero-img{height:min(calc(30svh * var(--s, 1)), calc(84vw / var(--sr, 2)));width:auto;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}
+.jh-hero-img{flex-shrink:0;height:min(calc(30svh * var(--s, 1)), calc(84vw / var(--sr, 2)));width:auto;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}
 .jh-hero-down{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:54px;height:54px;border:0;background:none;padding:0;cursor:pointer;color:#111;display:flex;align-items:center;justify-content:center;animation:jhBob 2.2s ease-in-out infinite}
 .jh-hero-down svg{width:26px;height:26px}
 @keyframes jhBob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,7px)}}
@@ -517,6 +517,38 @@ window.addEventListener('scroll', heroState, { passive: true }); heroState();
 
 document.getElementById('heroDown').addEventListener('click', function () { document.getElementById('top').scrollIntoView({ behavior: 'smooth' }); });
 // portada: las editoriales se deslizan de derecha a izquierda solas; también se arrastran con el mouse o el dedo
+// poses de la portada: la del medio (o el centro del par del medio, si son 4) queda centrada bajo el logo
+// y todas las poses tienen el mismo aire entre sí; ese aire es el que dejaría reparto parejo con los bordes
+function heroLayout() {
+document.querySelectorAll('.jh-hero-slide').forEach(function (sl) {
+var im = [].slice.call(sl.querySelectorAll('img')), n = im.length, W = sl.clientWidth;
+im.forEach(function (i) { i.style.height = ''; });
+var w0 = im.map(function (i) { return i.getBoundingClientRect().width; });
+if (!W || w0.some(function (x) { return !x; })) return;
+var h0 = im[0].getBoundingClientRect().height, k = 1, g, mid, xs, w;
+for (var it = 0; it < 6; it++) {
+w = w0.map(function (x) { return x * k; });
+var tot = w.reduce(function (a, b) { return a + b; }, 0); g = Math.max(8, (W - tot) / (n + 1));
+var x = 0; xs = w.map(function (wi) { var p = x; x += wi + g; return p; });
+var rowW = x - g;
+mid = n % 2 ? xs[(n - 1) / 2] + w[(n - 1) / 2] / 2 : (xs[n / 2 - 1] + w[n / 2 - 1] + xs[n / 2]) / 2;
+var need = Math.max(mid, rowW - mid) + Math.max(16, g * 0.5); // con la del medio centrada, el lado más ancho tiene que entrar (con un margen mínimo)
+if (need <= W / 2 + 0.5) break;
+k *= (W / 2) / need; // en pantallas angostas, achicar las poses lo justo
+}
+if (k < 1) {
+im.forEach(function (i) { i.style.height = (h0 * k) + 'px'; });
+// medir de nuevo con el tamaño final para que el centrado sea exacto
+w = im.map(function (i) { return i.getBoundingClientRect().width; });
+var t2 = w.reduce(function (a, b) { return a + b; }, 0); g = Math.max(8, (W - t2) / (n + 1));
+var x2 = 0; xs = w.map(function (wi) { var p = x2; x2 += wi + g; return p; });
+mid = n % 2 ? xs[(n - 1) / 2] + w[(n - 1) / 2] / 2 : (xs[n / 2 - 1] + w[n / 2 - 1] + xs[n / 2]) / 2;
+}
+sl.style.justifyContent = 'flex-start'; sl.style.columnGap = g + 'px'; sl.style.paddingLeft = (W / 2 - mid) + 'px';
+});
+}
+document.querySelectorAll('.jh-hero-img').forEach(function (i) { if (!i.complete) i.addEventListener('load', heroLayout); });
+window.addEventListener('resize', heroLayout); heroLayout();
 var hTrack = document.getElementById('heroTrack'), hN = 4, hCur = 0, hTimer = null, EASE = 'transform .9s cubic-bezier(.65,0,.35,1)';
 function hSet(i, anim, extra) {
   hTrack.style.transition = anim ? EASE : 'none';
