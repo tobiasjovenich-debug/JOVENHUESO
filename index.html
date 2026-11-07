@@ -283,7 +283,7 @@ header{gap:6px}
 <span class="jh-sold">VENDIDO</span>
 <span style="font-size:9px;letter-spacing:.12em;color:#555;font-weight:300" id="ovDetail"></span>
 <div class="jh-actions">
-<a class="jh-wa" id="ovWa" href="#" target="_blank" rel="noopener">CONSULTAR POR INSTAGRAM</a>
+<a class="jh-wa" id="ovWa" href="#" target="_blank" rel="noopener">CONSULTAR POR WHATSAPP</a>
 <button type="button" class="jh-add" id="ovAdd">AGREGAR AL CARRITO</button>
 </div>
 </div>
@@ -298,7 +298,7 @@ header{gap:6px}
 <div class="jh-tray-actions" id="trayActions">
 <button type="button" class="jh-add" id="lookToCart">AGREGAR TODO AL CARRITO</button>
 <button type="button" class="jh-add" id="lookPhoto">GUARDAR FOTO DEL LOOK</button>
-<a class="jh-wa" id="lookWa" href="#" target="_blank" rel="noopener">CONSULTAR ESTE LOOK POR INSTAGRAM</a>
+<a class="jh-wa" id="lookWa" href="#" target="_blank" rel="noopener">CONSULTAR ESTE LOOK POR WHATSAPP</a>
 <button type="button" class="jh-link" id="lookClear">VACIAR LOOK</button>
 </div>
 </div>
@@ -311,14 +311,14 @@ header{gap:6px}
 <ul class="jh-cart-list" id="cartList"></ul>
 <div class="jh-cart-foot">
 <div class="jh-cart-total" id="cartTotal"></div>
-<a class="jh-wa" id="cartWa" href="#" target="_blank" rel="noopener">CONSULTAR TODO POR INSTAGRAM</a>
-<span class="jh-cart-note">TE RESPONDEMOS POR INSTAGRAM</span>
+<a class="jh-wa" id="cartWa" href="#" target="_blank" rel="noopener">CONSULTAR TODO POR WHATSAPP</a>
+<span class="jh-cart-note">TE RESPONDEMOS POR WHATSAPP</span>
 </div>
 </aside>
 <script>
 (function () {
-var IG_USER = 'jovenhueso.revista';
-var IG_DM = 'https://ig.me/m/' + IG_USER;
+// consultas por WhatsApp: se abre el chat con el mensaje ya escrito (número personal por ahora; después WhatsApp Business)
+var WA_NUM = '5491126430634';
 var REV = [];
 // tapa (nueva, sin borde) + hojas interiores + contratapa al final
 REV.push('revista/tapa.jpg');
@@ -451,9 +451,7 @@ var ORDER = randomOrder(window.innerWidth <= 820 ? 6 : 12) || DEFAULT_ORDER;
 
 var board = document.getElementById('board'), grid = document.getElementById('grid');
 var flipped = false, cols = 0, z = 10, free = {}, cards = {}, loose = {};
-// Instagram no permite abrir un mensaje directo con el texto ya escrito:
-// al tocar "Consultar" se copia el mensaje y se abre el chat con @jovenhueso.revista para pegarlo
-function setConsult(el, msg) { el.href = IG_DM; el.setAttribute('data-ig-msg', msg); }
+function setConsult(el, msg) { el.href = 'https://wa.me/' + WA_NUM + '?text=' + encodeURIComponent(msg); }
 function toast(t) {
 var d = document.getElementById('jhToast');
 if (!d) { d = document.createElement('div'); d.id = 'jhToast'; d.setAttribute('role', 'status'); d.className = 'jh-toast'; document.body.appendChild(d); }
@@ -467,12 +465,6 @@ function fallbackCopy(t) {
 var ta = document.createElement('textarea'); ta.value = t; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;left:-9999px';
 document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (err) {} ta.remove();
 }
-document.addEventListener('click', function (e) {
-var a = e.target.closest && e.target.closest('[data-ig-msg]');
-if (!a || a.getAttribute('aria-disabled') === 'true') return;
-copyText(a.getAttribute('data-ig-msg'));
-toast('MENSAJE COPIADO · PEGALO EN EL CHAT DE INSTAGRAM');
-});
 function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 function cap(x) { return esc(x.name) + ' by <b>' + esc(x.brand) + '</b>'; }
 
@@ -1038,7 +1030,7 @@ document.getElementById('ovCount').textContent = x.revista ? pad(k + 1) + ' / ' 
 document.getElementById('ovName').innerHTML = cap(x);
 document.getElementById('ovPrice').textContent = x.price;
 document.getElementById('ovDetail').textContent = x.revista ? 'FORMATO A4 · EDICIÓN IMPRESA' : x.measures;
-setConsult(document.getElementById('ovWa'), 'Hola JOVENHUESO! Me interesa ' + x.name + ' by ' + x.brand + '. ¿Sigue disponible?');
+setConsult(document.getElementById('ovWa'), 'Hola JOVENHUESO! Me interesa ' + x.name + ' by ' + x.brand + ' (' + x.price.toLowerCase() + (x.measures ? ' · ' + x.measures.toLowerCase() : '') + '). ¿Sigue disponible?');
 ov.setAttribute('aria-label', x.name + ' by ' + x.brand + (x.sold ? ' — vendido' : ''));
 ov.classList.toggle('is-sold', !!x.sold);
 syncAddBtn();
