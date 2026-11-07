@@ -313,19 +313,19 @@ var ITEMS = [
 { id: 'capucha', name: 'Musculosa', brand: 'NIKE', w: 3, h: 3, f: I('muscu-capucha-nike'), b: I('muscu-capucha-nike-back') },
 { id: 'blanco34', name: '3/4 Deportivos', brand: 'WIL', w: 3, h: 4, f: I('3-4-blancos'), b: I('3-4-blancos-back') },
 { id: 'vincha', name: 'Vincha ninja', brand: 'NIKE', w: 3, h: 1, f: I('vincha-ninja-nike') },
-{ id: 'puffer', name: 'Campera puffer', brand: 'NIKE', w: 4, h: 4, f: I('campe-blanca-nike') },
+{ id: 'puffer', name: 'Campera puffer', brand: 'NIKE', w: 4, h: 4, f: I('campe-blanca-nike'), b: I('campe-blanca-nike-back') },
 { id: 'revista', name: 'Revista Vol. 01', brand: 'JOVENHUESO', w: 3, h: 3, f: 'revista/tapa.jpg', b: 'revista/contratapa.jpg', pages: REV, size: 'A4', revista: true },
 { id: 'remegris', name: 'Remera deportiva', brand: 'NIKE', w: 3, h: 3, f: I('reme-gris-nike'), b: I('reme-gris-nike-back') },
 { id: 'boina', name: 'Boina Total 90', brand: 'NIKE', w: 2, h: 2, f: I('boina-nike'), b: I('boina-nike-back') },
 { id: 'canilleras', name: 'Canilleras Total 90', brand: 'NIKE', w: 2, h: 2, f: I('canilleras-nike') },
-{ id: 'gafas', name: 'Gafas', brand: 'MORMAI', w: 3, h: 1, f: I('gafas-blancas') },
+{ id: 'gafas', name: 'Gafas', brand: 'MORMAII', w: 3, h: 1, f: I('gafas-blancas') },
 { id: 'chombaark', name: 'Chomba', brand: 'ADIDAS', w: 3, h: 3, f: I('chomba-ark-adidas'), b: I('chomba-ark-adidas-back') },
 { id: 'inter', name: 'Camiseta Inter 20/21', brand: 'NIKE', w: 3, h: 3, f: I('reme-inter'), b: I('reme-inter-back') },
 { id: 'muscunaranja', name: 'Musculosa deportiva', brand: 'NIKE', w: 3, h: 3, f: I('muscu-naranja-nike'), b: I('muscu-naranja-nike-back') },
 { id: 'muscuroja', name: 'Musculosa deportiva', brand: 'ADIDAS', w: 3, h: 3, f: I('muscu-roja-adidas'), b: I('muscu-roja-adidas-back') },
-{ id: 'pant', name: 'Pantalones', brand: 'REEBOOK', w: 3, h: 6, f: I('pant-reebook'), b: I('pant-reebook-back') },
+{ id: 'pant', name: 'Pantalones', brand: 'REEBOK', w: 3, h: 6, f: I('pant-reebook'), b: I('pant-reebook-back') },
 { id: 'muscunegra', name: 'Musculosa Dri-Fit', brand: 'NIKE', w: 3, h: 3, f: I('muscu-negra-nike'), b: I('muscu-negra-nike-back') },
-{ id: 'remeceleste', name: 'Remera deportivo', brand: 'ADIDAS', w: 3, h: 3, f: I('reme-celeste-adidas'), b: I('reme-celeste-adidas-back') },
+{ id: 'remeceleste', name: 'Remera deportiva', brand: 'ADIDAS', w: 3, h: 3, f: I('reme-celeste-adidas'), b: I('reme-celeste-adidas-back') },
 { id: 'jean34', name: '3/4 Jean', brand: 'NIKE', w: 3, h: 4, f: I('3-4-nike'), b: I('3-4-nike-back') },
 { id: 'pollera', name: 'Pollera', brand: 'ADIDAS', w: 3, h: 3, f: I('pollera-adidas'), b: I('pollera-adidas-back') },
 { id: 'chombablanca', name: 'Chomba tennis', brand: 'ADIDAS', w: 3, h: 3, f: I('chomba-blanca-adidas'), b: I('chomba-blanca-adidas-back') },
@@ -333,11 +333,11 @@ var ITEMS = [
 { id: 'kioto', name: 'Zapatillas Kioto', brand: 'NIKE', w: 2, h: 3, f: I('nike-ninja-blancas') },
 { id: 'tabisblancas', name: 'Zapatillas Tabi', brand: 'NIKE', w: 2, h: 3, f: I('tabis-blancas'), b: I('tabis-blancas-suela') },
 { id: 'tabisnegras', name: 'Zapatillas Tabi', brand: 'NIKE', w: 2, h: 3, f: I('tabis-negras-frente'), b: I('tabis-negras-suela') },
-{ id: 'bolso', name: 'Bolso', brand: 'JET', w: 3, h: 3, f: I('cartera-jet') }
+{ id: 'bolso', name: 'Bolso', brand: 'JET', w: 3, h: 3, f: I('cartera-jet'), b: I('cartera-jet-back') }
 ];
 // medida real del lado más largo de cada prenda (cm) y tamaño de cada foto: para que todo esté a la misma escala
 var REAL = {"fleece": ["h", 70], "puffer": ["h", 66], "bandolera": ["h", 75], "capucha": ["h", 72], "blanco34": ["h", 70], "vincha": ["w", 29], "revista": ["h", 65], "remegris": ["h", 60], "boina": ["w", 28], "canilleras": ["w", 30], "gafas": ["w", 15], "chombaark": ["h", 66], "inter": ["h", 56], "muscunaranja": ["h", 58], "muscuroja": ["h", 56], "pant": ["h", 102], "muscunegra": ["h", 68], "remeceleste": ["h", 58], "jean34": ["h", 72], "pollera": ["h", 38], "chombablanca": ["h", 60], "zoom": ["h", 30], "kioto": ["h", 29], "tabisblancas": ["h", 28], "tabisnegras": ["h", 28], "bolso": ["h", 40]}; // medida real: ['h', alto en cm] o ['w', ancho en cm]
-var DIMS = {"img/muscu-capucha-nike.webp":[612,1000],"img/reme-gris-nike.webp":[979,1000],"img/vincha-ninja-nike.webp":[1000,604],"img/campe-nike.webp":[1000,807],"img/chomba-ark-adidas.webp":[1000,842],"img/3-4-blancos.webp":[902,1000],"img/boina-nike.webp":[1000,872],"img/boina-nike-back.webp":[1000,852],"img/3-4-nike-back.webp":[832,1000],"img/muscu-naranja-nike.webp":[911,1000],"img/reme-inter.webp":[1000,890],"img/pollera-adidas-back.webp":[1000,641],"img/muscu-negra-nike-back.webp":[712,1000],"img/3-4-blancos-back.webp":[794,1000],"img/cantimplora-nike.webp":[214,1000],"img/reme-gris-nike-back.webp":[961,1000],"img/reme-celeste-adidas-back.webp":[1000,991],"img/tennis-nike-suela.webp":[815,1000],"img/chomba-ark-adidas-back.webp":[1000,848],"img/3-4-nike.webp":[777,1000],"img/campe-nike-back.webp":[1000,755],"img/reme-celeste-adidas.webp":[1000,992],"img/tabis-blancas-suela.webp":[779,1000],"img/muscu-capucha-nike-back.webp":[602,1000],"img/pant-reebook-back.webp":[547,1000],"img/tabis-negras-suela.webp":[790,1000],"img/muscu-negra-nike.webp":[689,943],"img/cartera-jet.webp":[528,1000],"img/tabis-blancas.webp":[818,1000],"img/campe-blanca-nike.webp":[1000,808],"img/canilleras-nike.webp":[1000,815],"img/nike-ninja-blancas.webp":[843,1000],"img/reme-inter-back.webp":[1000,882],"img/chomba-blanca-adidas.webp":[938,1000],"img/tennis-nike.webp":[932,1000],"img/tabis-negras-frente.webp":[827,1000],"img/muscu-naranja-nike-back.webp":[927,1000],"img/muscu-roja-adidas-back.webp":[828,1000],"img/muscu-roja-adidas.webp":[809,1000],"img/pant-reebook.webp":[541,1000],"img/pollera-adidas.webp":[1000,656],"img/gafas-blancas.webp":[1000,436],"img/chomba-blanca-adidas-back.webp":[908,1000],"revista/tapa.jpg":[1290,1825],"revista/contratapa.jpg":[1290,1825]};
+var DIMS = {"img/cartera-jet-back.webp":[526,1000],"img/campe-blanca-nike-back.webp":[1000,864],"img/muscu-capucha-nike.webp":[612,1000],"img/reme-gris-nike.webp":[979,1000],"img/vincha-ninja-nike.webp":[1000,604],"img/campe-nike.webp":[1000,807],"img/chomba-ark-adidas.webp":[1000,842],"img/3-4-blancos.webp":[902,1000],"img/boina-nike.webp":[1000,872],"img/boina-nike-back.webp":[1000,852],"img/3-4-nike-back.webp":[832,1000],"img/muscu-naranja-nike.webp":[911,1000],"img/reme-inter.webp":[1000,890],"img/pollera-adidas-back.webp":[1000,641],"img/muscu-negra-nike-back.webp":[712,1000],"img/3-4-blancos-back.webp":[794,1000],"img/cantimplora-nike.webp":[214,1000],"img/reme-gris-nike-back.webp":[961,1000],"img/reme-celeste-adidas-back.webp":[1000,991],"img/tennis-nike-suela.webp":[815,1000],"img/chomba-ark-adidas-back.webp":[1000,848],"img/3-4-nike.webp":[777,1000],"img/campe-nike-back.webp":[1000,755],"img/reme-celeste-adidas.webp":[1000,992],"img/tabis-blancas-suela.webp":[779,1000],"img/muscu-capucha-nike-back.webp":[602,1000],"img/pant-reebook-back.webp":[547,1000],"img/tabis-negras-suela.webp":[790,1000],"img/muscu-negra-nike.webp":[689,943],"img/cartera-jet.webp":[527,1000],"img/tabis-blancas.webp":[818,1000],"img/campe-blanca-nike.webp":[1000,849],"img/canilleras-nike.webp":[1000,815],"img/nike-ninja-blancas.webp":[843,1000],"img/reme-inter-back.webp":[1000,882],"img/chomba-blanca-adidas.webp":[938,1000],"img/tennis-nike.webp":[932,1000],"img/tabis-negras-frente.webp":[827,1000],"img/muscu-naranja-nike-back.webp":[927,1000],"img/muscu-roja-adidas-back.webp":[828,1000],"img/muscu-roja-adidas.webp":[809,1000],"img/pant-reebook.webp":[541,1000],"img/pollera-adidas.webp":[1000,656],"img/gafas-blancas.webp":[1000,436],"img/chomba-blanca-adidas-back.webp":[908,1000],"revista/tapa.jpg":[1290,1825],"revista/contratapa.jpg":[1290,1825]};
 // prendas vendidas: siguen en el catálogo, pero al abrirlas dice VENDIDO y no se pueden consultar ni agregar al carrito
 var SOLD = ['tabisblancas', 'tabisnegras', 'remegris', 'gafas'];
 // precios de venta y medidas en plano (cm), tomados de la planilla "Joven Hueso Finanzas" (Drive)
@@ -1008,8 +1008,19 @@ ov.classList.toggle('is-sold', !!x.sold);
 syncAddBtn();
 }
 function openItem(id) { cur = id; side = flipped && BY[id].b ? (BY[id].pages ? BY[id].pages.length - 1 : 1) : 0; // si el catálogo está dado vuelta, se abre mostrando la espalda (la revista, en la contratapa)
+ if (ovClosing) { ovClosing.cancel(); ovClosing = null; }
  renderOv(); ov.classList.add('open'); document.getElementById('ovClose').focus(); }
-document.getElementById('ovClose').addEventListener('click', function () { ov.classList.remove('open'); if (cards[cur]) cards[cur].focus(); });
+// cierre suave: el inverso de la apertura (la prenda se achica un poco y todo se desvanece)
+var ovClosing = null;
+document.getElementById('ovClose').addEventListener('click', function () {
+if (!ov.classList.contains('open') || ovClosing) return;
+var back = cards[cur];
+if (!ov.animate) { ov.classList.remove('open'); if (back) back.focus(); return; }
+var im = ov.querySelector('.jh-ov-box img');
+if (im) im.animate([{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(.88)', opacity: 0 }], { duration: 340, easing: 'cubic-bezier(.4,0,.6,1)', fill: 'forwards' });
+ovClosing = ov.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 380, easing: 'ease-in-out', fill: 'forwards' });
+ovClosing.onfinish = function () { ov.classList.remove('open'); ovClosing.cancel(); ovClosing = null; if (back) back.focus({ preventScroll: true }); };
+});
 function stepOv(d) {
 var x = BY[cur], n = (x.pages || (x.b ? [x.f, x.b] : [x.f])).length;
 if (n < 2) { var i0 = ovBox.querySelector('img'); if (i0) i0.style.transform = ''; return; }
