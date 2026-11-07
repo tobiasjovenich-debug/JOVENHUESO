@@ -71,7 +71,7 @@ main{width:100%;margin:0;padding:8px var(--gap) 96px calc(var(--piz) + 2 * var(-
 .jh-back{visibility:hidden}
 .jh-flipped .jh-back{visibility:visible}
 .jh-flipped .jh-face:not(.jh-back){visibility:hidden}
-.jh-empty .jh-face{visibility:hidden!important}
+.jh-empty .jh-face{visibility:hidden!important;transition:none!important} /* al levantar una prenda, el recuadro se vacía al instante (sin la demora del giro) */
 /* al volver a su lugar la cara aparece al instante (sin la demora del giro, que la dejaba invisible casi un segundo) */
 .jh-arrive .jh-face{transition:border-color .2s!important}
 .jh-card:hover .jh-face{border-color:#111}
