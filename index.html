@@ -147,10 +147,10 @@ footer a{text-decoration:none}
 .jh-sold{display:none;font-size:11px;letter-spacing:.22em;font-weight:600;color:#111;border:1px solid #111;padding:9px 18px;margin-top:6px}
 .jh-ov.is-sold .jh-sold{display:inline-block}
 .jh-ov.is-sold .jh-actions,.jh-ov.is-sold #ovPrice,.jh-ov.is-sold #ovDetail{display:none}
-.jh-cart-bg{position:fixed;inset:0;z-index:5001;background:rgba(255,255,255,.6);display:none}
-.jh-cart-bg.open{display:block}
-.jh-cart{position:fixed;top:0;right:0;bottom:0;z-index:5002;width:min(380px,100vw);background:#fff;border-left:1px solid #C8C8C8;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .35s cubic-bezier(.2,.7,.2,1);visibility:hidden}
-.jh-cart.open{transform:none;visibility:visible}
+.jh-cart-bg{position:fixed;inset:0;z-index:5001;background:rgba(255,255,255,.6);opacity:0;visibility:hidden;transition:opacity .4s ease,visibility 0s linear .4s}
+.jh-cart-bg.open{opacity:1;visibility:visible;transition:opacity .3s ease,visibility 0s}
+.jh-cart{position:fixed;top:0;right:0;bottom:0;z-index:5002;width:min(380px,100vw);background:#fff;border-left:1px solid #C8C8C8;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .42s cubic-bezier(.4,0,.2,1),visibility 0s linear .42s;visibility:hidden}
+.jh-cart.open{transform:none;visibility:visible;transition:transform .35s cubic-bezier(.2,.7,.2,1),visibility 0s}
 .jh-cart-head{display:flex;justify-content:space-between;align-items:center;padding:14px 12px 14px 20px;border-bottom:1px solid #C8C8C8}
 .jh-cart-list{flex:1;overflow-y:auto;padding:8px 20px;margin:0;list-style:none}
 .jh-cart-list li{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #EDEDED}
@@ -219,6 +219,14 @@ header,main,footer{padding-left:16px;padding-right:16px}
 main{padding-left:16px}
 .jh-grid{grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-rows:58px;gap:8px}
 .jh-ov-box,.jh-ov-box.wide{width:calc(100vw - 140px)}
+/* vista de prenda: todo en una sola pantalla (foto, datos y botones), sin deslizar hacia abajo */
+.jh-ov{height:100vh;height:100dvh;overflow:hidden}
+.jh-ov-top{padding:10px 16px 6px}
+.jh-ov-stage{flex:1 1 0;min-height:0;gap:6px;padding:0 6px}
+.jh-ov-box,.jh-ov-box.tall,.jh-ov-box.wide{height:100%;max-height:100%}
+.jh-ov-info{gap:6px;padding:10px 16px calc(16px + env(safe-area-inset-bottom))}
+.jh-ov-info .jh-actions{flex-wrap:nowrap;width:100%;gap:8px;margin-top:8px}
+.jh-ov-info .jh-actions>*{flex:1 1 0;min-width:0;min-height:46px;padding:0 8px;font-size:9px;letter-spacing:.1em;text-align:center}
 /* 4 íconos: más angostos para que entren al lado del logo en celulares chicos */
 header{gap:6px}
 .tools{gap:0}
