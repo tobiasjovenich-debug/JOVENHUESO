@@ -4,6 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>JOVENHUESO</title>
+<meta name="description" content="Ropa sport vintage de los 2000, en perfecto estado. Catálogo de la revista JOVENHUESO Vol. 01.">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#ffffff">
+<!-- vista previa al compartir el link (WhatsApp, Instagram, etc.) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="JOVENHUESO">
+<meta property="og:title" content="JOVENHUESO">
+<meta property="og:description" content="Ropa sport vintage de los 2000, en perfecto estado. Catálogo de la revista JOVENHUESO Vol. 01.">
+<meta property="og:url" content="https://jovenhueso.com.ar/">
+<meta property="og:image" content="https://jovenhueso.com.ar/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Editorial JOVENHUESO Vol. 01: la misma pose tres veces con la camiseta del Inter">
+<meta property="og:locale" content="es_AR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://jovenhueso.com.ar/og.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@200;300;600;700&display=swap" rel="stylesheet">
 <style>
@@ -339,13 +357,13 @@ var ITEMS = [
 var REAL = {"fleece": ["h", 70], "puffer": ["h", 66], "bandolera": ["h", 75], "capucha": ["h", 72], "blanco34": ["h", 70], "vincha": ["w", 29], "revista": ["h", 65], "remegris": ["h", 60], "boina": ["w", 28], "canilleras": ["w", 30], "gafas": ["w", 15], "chombaark": ["h", 66], "inter": ["h", 56], "muscunaranja": ["h", 58], "muscuroja": ["h", 56], "pant": ["h", 102], "muscunegra": ["h", 68], "remeceleste": ["h", 58], "jean34": ["h", 72], "pollera": ["h", 38], "chombablanca": ["h", 60], "zoom": ["h", 30], "kioto": ["h", 29], "tabisblancas": ["h", 28], "tabisnegras": ["h", 28], "bolso": ["h", 40]}; // medida real: ['h', alto en cm] o ['w', ancho en cm]
 var DIMS = {"img/cartera-jet-back.webp":[526,1000],"img/campe-blanca-nike-back.webp":[1000,864],"img/muscu-capucha-nike.webp":[612,1000],"img/reme-gris-nike.webp":[979,1000],"img/vincha-ninja-nike.webp":[1000,604],"img/campe-nike.webp":[1000,807],"img/chomba-ark-adidas.webp":[1000,842],"img/3-4-blancos.webp":[902,1000],"img/boina-nike.webp":[1000,872],"img/boina-nike-back.webp":[1000,852],"img/3-4-nike-back.webp":[832,1000],"img/muscu-naranja-nike.webp":[911,1000],"img/reme-inter.webp":[1000,890],"img/pollera-adidas-back.webp":[1000,641],"img/muscu-negra-nike-back.webp":[712,1000],"img/3-4-blancos-back.webp":[794,1000],"img/cantimplora-nike.webp":[214,1000],"img/reme-gris-nike-back.webp":[961,1000],"img/reme-celeste-adidas-back.webp":[1000,991],"img/tennis-nike-suela.webp":[815,1000],"img/chomba-ark-adidas-back.webp":[1000,848],"img/3-4-nike.webp":[777,1000],"img/campe-nike-back.webp":[1000,755],"img/reme-celeste-adidas.webp":[1000,992],"img/tabis-blancas-suela.webp":[779,1000],"img/muscu-capucha-nike-back.webp":[602,1000],"img/pant-reebook-back.webp":[547,1000],"img/tabis-negras-suela.webp":[790,1000],"img/muscu-negra-nike.webp":[689,943],"img/cartera-jet.webp":[527,1000],"img/tabis-blancas.webp":[818,1000],"img/campe-blanca-nike.webp":[1000,849],"img/canilleras-nike.webp":[1000,815],"img/nike-ninja-blancas.webp":[843,1000],"img/reme-inter-back.webp":[1000,882],"img/chomba-blanca-adidas.webp":[938,1000],"img/tennis-nike.webp":[932,1000],"img/tabis-negras-frente.webp":[827,1000],"img/muscu-naranja-nike-back.webp":[927,1000],"img/muscu-roja-adidas-back.webp":[828,1000],"img/muscu-roja-adidas.webp":[809,1000],"img/pant-reebook.webp":[541,1000],"img/pollera-adidas.webp":[1000,656],"img/gafas-blancas.webp":[1000,436],"img/chomba-blanca-adidas-back.webp":[908,1000],"revista/tapa.jpg":[1290,1825],"revista/contratapa.jpg":[1290,1825]};
 // prendas vendidas: siguen en el catálogo, pero al abrirlas dice VENDIDO y no se pueden consultar ni agregar al carrito
-var SOLD = ['tabisblancas', 'tabisnegras', 'remegris', 'gafas'];
+var SOLD = ['tabisblancas', 'tabisnegras', 'remegris', 'gafas', 'kioto'];
 // precios de venta y medidas en plano (cm), tomados de la planilla "Joven Hueso Finanzas" (Drive)
 // a = ancho de axila a axila (arriba) o de cintura (abajo) · l = largo · t = talle fijo (calzado)
 var PRICES = {
 puffer: { p: '$ 150.000', a: 47, l: 57 },
 fleece: { p: '$ 110.000', a: 50, l: 63 },
-zoom: { p: '$ 70.000' },
+zoom: { p: '$ 70.000', t: '40' },
 pant: { p: '$ 50.000', a: 41, l: 104 },
 gafas: { p: '$ 50.000' },
 kioto: { p: '$ 40.000', t: '40' },
