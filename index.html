@@ -12,8 +12,10 @@ html,body{overflow-x:hidden}
 body{margin:0;background:#fff;color:#111;font-family:Archivo,'Helvetica Neue',Arial,sans-serif}
 a{color:#111}a:hover{color:#555}
 .jh-hero{position:relative;height:100vh;height:100svh;overflow:hidden;background:#fff}
-.jh-hero-logo{position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:2}
-.jh-hero-logo img{height:40px;width:auto;display:block}
+/* un solo logo: queda fijo arriba mientras se ve la portada y se apoya en el inicio del catálogo */
+.jh-float-logo{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:4;will-change:top}
+.jh-float-logo img{height:40px;width:auto;display:block}
+.jh-logo-slot{display:block;width:30px;height:40px}
 .jh-hero-track{position:absolute;inset:0;display:flex;will-change:transform;cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none}
 .jh-hero-track.drag{cursor:grabbing}
 .jh-hero-slide{flex:0 0 100%;height:100%;display:flex;align-items:center;justify-content:center}
@@ -21,7 +23,7 @@ a{color:#111}a:hover{color:#555}
 .jh-hero-down{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:54px;height:54px;border:0;background:none;padding:0;cursor:pointer;color:#111;display:flex;align-items:center;justify-content:center;animation:jhBob 2.2s ease-in-out infinite}
 .jh-hero-down svg{width:26px;height:26px}
 @keyframes jhBob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,7px)}}
-@media (max-width:820px){.jh-hero-img{width:min(74vw,78svh)}.jh-hero-logo{top:14px}}
+@media (max-width:820px){.jh-hero-img{width:min(74vw,78svh)}}
 body.is-mobile.on-hero .jh-tray{transform:translateY(100%)}
 body.is-mobile .jh-tray{transition:height .35s cubic-bezier(.2,.7,.2,1),transform .35s ease}
 header{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;padding:16px 32px 20px;gap:16px}
@@ -87,12 +89,12 @@ main{width:100%;margin:0;padding:8px var(--gap) 96px calc(var(--piz) + 2 * var(-
 .jh-lifted .jh-img img{filter:drop-shadow(0 12px 16px rgba(0,0,0,.16))}
 footer{padding:20px 32px 28px;display:flex;justify-content:center;gap:28px;flex-wrap:wrap;font-size:9px;letter-spacing:.14em;font-weight:300}
 footer a{text-decoration:none}
-.jh-ov{position:fixed;inset:0;z-index:5000;background:#fff;display:none;flex-direction:column;overflow-y:auto;animation:jhFade .25s ease}
+.jh-ov{position:fixed;inset:0;z-index:5000;background:#fff;display:none;flex-direction:column;overflow-y:auto;overflow-x:hidden;animation:jhFade .25s ease}
 .jh-ov.open{display:flex}
 .jh-ov-top{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;padding:16px 32px 20px}
 .jh-ov-top img{height:40px;width:auto;display:block}
 .jh-ov-stage{flex-grow:1;display:flex;align-items:center;justify-content:center;gap:16px;padding:0 16px;min-height:420px}
-.jh-ov-box{display:flex;align-items:center;justify-content:center;width:min(62vw,640px);height:min(62vh,620px)}
+.jh-ov-box{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;width:min(62vw,640px);height:min(62vh,620px)}
 .jh-ov-box.wide{width:min(84vw,1180px)}
 .jh-ov-box.tall{height:min(66vh,860px)}
 .jh-ov-stage{touch-action:pan-y}
@@ -198,8 +200,8 @@ main{padding-left:16px}
 </style>
 </head>
 <body>
+<a class="jh-float-logo" id="floatLogo" href="https://www.instagram.com/jovenhueso.revista/" target="_blank" rel="noopener" aria-label="Instagram de JOVENHUESO"><img src="img/logo.png" alt="JOVENHUESO"></a>
 <section class="jh-hero" id="hero" aria-label="Editorial JOVENHUESO Vol. 01">
-<a class="jh-hero-logo" href="https://www.instagram.com/jovenhueso.revista/" target="_blank" rel="noopener" aria-label="Instagram de JOVENHUESO"><img src="img/logo.png" alt="JOVENHUESO"></a>
 <div class="jh-hero-track" id="heroTrack">
 <div class="jh-hero-slide"><img class="jh-hero-img" src="revista/rev-03.jpg" alt="Editorial JOVENHUESO Vol. 01 · Look Inter" fetchpriority="high" draggable="false"></div>
 <div class="jh-hero-slide"><img class="jh-hero-img" src="revista/rev-06.jpg" alt="Editorial JOVENHUESO Vol. 01 · Look negro" draggable="false"></div>
@@ -210,7 +212,7 @@ main{padding-left:16px}
 </section>
 <header id="top">
 <span></span>
-<a class="logo" href="https://www.instagram.com/jovenhueso.revista/" target="_blank" rel="noopener" aria-label="Instagram de JOVENHUESO"><img src="img/logo.png" alt="JOVENHUESO"></a>
+<span class="jh-logo-slot" id="logoSlot" aria-hidden="true"></span>
 <div class="tools">
 <button type="button" class="jh-icon" id="flipBtn" aria-pressed="false" aria-label="Dar vuelta las prendas" title="Dar vuelta">
 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 0 1 14.6-5.9L20.5 8.5"/><path d="M20.5 3.5v5h-5"/><path d="M20.5 12a8.5 8.5 0 0 1-14.6 5.9L3.5 15.5"/><path d="M3.5 20.5v-5h5"/></svg>
@@ -287,7 +289,10 @@ main{padding-left:16px}
 var IG_USER = 'jovenhueso.revista';
 var IG_DM = 'https://ig.me/m/' + IG_USER;
 var REV = [];
-for (var i = 1; i <= 18; i++) REV.push('revista/rev-' + (i < 10 ? '0' : '') + i + '.jpg');
+// tapa (nueva, sin borde) + hojas interiores + contratapa al final
+REV.push('revista/tapa.jpg');
+for (var i = 2; i <= 18; i++) REV.push('revista/rev-' + (i < 10 ? '0' : '') + i + '.jpg');
+REV.push('revista/contratapa.jpg');
 var I = function (n) { return 'img/' + n + '.webp'; };
 var ITEMS = [
 { id: 'fleece', name: 'Campera', brand: 'NIKE', w: 4, h: 4, f: I('campe-nike'), b: I('campe-nike-back') },
@@ -296,7 +301,7 @@ var ITEMS = [
 { id: 'blanco34', name: '3/4 Deportivos', brand: 'WIL', w: 3, h: 4, f: I('3-4-blancos'), b: I('3-4-blancos-back') },
 { id: 'vincha', name: 'Vincha ninja', brand: 'NIKE', w: 3, h: 1, f: I('vincha-ninja-nike') },
 { id: 'puffer', name: 'Campera puffer', brand: 'NIKE', w: 4, h: 4, f: I('campe-blanca-nike') },
-{ id: 'revista', name: 'Revista Vol. 01', brand: 'JOVENHUESO', w: 3, h: 3, f: REV[0], pages: REV, size: 'A4', revista: true },
+{ id: 'revista', name: 'Revista Vol. 01', brand: 'JOVENHUESO', w: 3, h: 3, f: 'revista/tapa.jpg', b: 'revista/contratapa.jpg', pages: REV, size: 'A4', revista: true },
 { id: 'remegris', name: 'Remera deportiva', brand: 'NIKE', w: 3, h: 3, f: I('reme-gris-nike'), b: I('reme-gris-nike-back') },
 { id: 'boina', name: 'Boina Total 90', brand: 'NIKE', w: 2, h: 2, f: I('boina-nike'), b: I('boina-nike-back') },
 { id: 'canilleras', name: 'Canilleras Total 90', brand: 'NIKE', w: 2, h: 2, f: I('canilleras-nike') },
@@ -318,8 +323,8 @@ var ITEMS = [
 { id: 'bolso', name: 'Bolso', brand: 'JET', w: 3, h: 3, f: I('cartera-jet') }
 ];
 // medida real del lado más largo de cada prenda (cm) y tamaño de cada foto: para que todo esté a la misma escala
-var REAL = {"fleece": ["h", 70], "puffer": ["h", 66], "bandolera": ["h", 75], "capucha": ["h", 72], "blanco34": ["h", 70], "vincha": ["w", 32], "revista": ["h", 65], "remegris": ["h", 60], "boina": ["w", 28], "canilleras": ["w", 30], "gafas": ["w", 15], "chombaark": ["h", 66], "inter": ["h", 56], "muscunaranja": ["h", 58], "muscuroja": ["h", 56], "pant": ["h", 102], "muscunegra": ["h", 68], "remeceleste": ["h", 58], "jean34": ["h", 72], "pollera": ["h", 38], "chombablanca": ["h", 60], "zoom": ["h", 30], "kioto": ["h", 29], "tabisblancas": ["h", 28], "tabisnegras": ["h", 28], "bolso": ["h", 40]}; // medida real: ['h', alto en cm] o ['w', ancho en cm]
-var DIMS = {"img/muscu-capucha-nike.webp":[612,1000],"img/reme-gris-nike.webp":[979,1000],"img/vincha-ninja-nike.webp":[1000,604],"img/campe-nike.webp":[1000,807],"img/chomba-ark-adidas.webp":[1000,842],"img/3-4-blancos.webp":[902,1000],"img/boina-nike.webp":[1000,872],"img/boina-nike-back.webp":[1000,852],"img/3-4-nike-back.webp":[832,1000],"img/muscu-naranja-nike.webp":[911,1000],"img/reme-inter.webp":[1000,890],"img/pollera-adidas-back.webp":[1000,641],"img/muscu-negra-nike-back.webp":[712,1000],"img/3-4-blancos-back.webp":[794,1000],"img/cantimplora-nike.webp":[214,1000],"img/reme-gris-nike-back.webp":[961,1000],"img/reme-celeste-adidas-back.webp":[1000,991],"img/tennis-nike-suela.webp":[815,1000],"img/chomba-ark-adidas-back.webp":[1000,848],"img/3-4-nike.webp":[777,1000],"img/campe-nike-back.webp":[1000,755],"img/reme-celeste-adidas.webp":[1000,992],"img/tabis-blancas-suela.webp":[779,1000],"img/muscu-capucha-nike-back.webp":[602,1000],"img/pant-reebook-back.webp":[547,1000],"img/tabis-negras-suela.webp":[790,1000],"img/muscu-negra-nike.webp":[689,943],"img/cartera-jet.webp":[528,1000],"img/tabis-blancas.webp":[818,1000],"img/campe-blanca-nike.webp":[1000,808],"img/canilleras-nike.webp":[1000,815],"img/nike-ninja-blancas.webp":[843,1000],"img/reme-inter-back.webp":[1000,882],"img/chomba-blanca-adidas.webp":[938,1000],"img/tennis-nike.webp":[932,1000],"img/tabis-negras-frente.webp":[827,1000],"img/muscu-naranja-nike-back.webp":[927,1000],"img/muscu-roja-adidas-back.webp":[828,1000],"img/muscu-roja-adidas.webp":[809,1000],"img/pant-reebook.webp":[541,1000],"img/pollera-adidas.webp":[1000,656],"img/gafas-blancas.webp":[1000,436],"img/chomba-blanca-adidas-back.webp":[908,1000],"revista/rev-01.jpg":[1290,1800]};
+var REAL = {"fleece": ["h", 70], "puffer": ["h", 66], "bandolera": ["h", 75], "capucha": ["h", 72], "blanco34": ["h", 70], "vincha": ["w", 32], "revista": ["h", 65], "remegris": ["h", 60], "boina": ["w", 28], "canilleras": ["w", 30], "gafas": ["w", 15], "chombaark": ["h", 66], "inter": ["h", 56], "muscunaranja": ["h", 58], "muscuroja": ["h", 56], "pant": ["h", 102], "muscunegra": ["h", 68], "remeceleste": ["h", 58], "jean34": ["h", 72], "pollera": ["h", 38], "chombablanca": ["h", 60], "zoom": ["h", 30], "kioto": ["h", 32], "tabisblancas": ["h", 28], "tabisnegras": ["h", 28], "bolso": ["h", 40]}; // medida real: ['h', alto en cm] o ['w', ancho en cm]
+var DIMS = {"img/muscu-capucha-nike.webp":[612,1000],"img/reme-gris-nike.webp":[979,1000],"img/vincha-ninja-nike.webp":[1000,604],"img/campe-nike.webp":[1000,807],"img/chomba-ark-adidas.webp":[1000,842],"img/3-4-blancos.webp":[902,1000],"img/boina-nike.webp":[1000,872],"img/boina-nike-back.webp":[1000,852],"img/3-4-nike-back.webp":[832,1000],"img/muscu-naranja-nike.webp":[911,1000],"img/reme-inter.webp":[1000,890],"img/pollera-adidas-back.webp":[1000,641],"img/muscu-negra-nike-back.webp":[712,1000],"img/3-4-blancos-back.webp":[794,1000],"img/cantimplora-nike.webp":[214,1000],"img/reme-gris-nike-back.webp":[961,1000],"img/reme-celeste-adidas-back.webp":[1000,991],"img/tennis-nike-suela.webp":[815,1000],"img/chomba-ark-adidas-back.webp":[1000,848],"img/3-4-nike.webp":[777,1000],"img/campe-nike-back.webp":[1000,755],"img/reme-celeste-adidas.webp":[1000,992],"img/tabis-blancas-suela.webp":[779,1000],"img/muscu-capucha-nike-back.webp":[602,1000],"img/pant-reebook-back.webp":[547,1000],"img/tabis-negras-suela.webp":[790,1000],"img/muscu-negra-nike.webp":[689,943],"img/cartera-jet.webp":[528,1000],"img/tabis-blancas.webp":[818,1000],"img/campe-blanca-nike.webp":[1000,808],"img/canilleras-nike.webp":[1000,815],"img/nike-ninja-blancas.webp":[843,1000],"img/reme-inter-back.webp":[1000,882],"img/chomba-blanca-adidas.webp":[938,1000],"img/tennis-nike.webp":[932,1000],"img/tabis-negras-frente.webp":[827,1000],"img/muscu-naranja-nike-back.webp":[927,1000],"img/muscu-roja-adidas-back.webp":[828,1000],"img/muscu-roja-adidas.webp":[809,1000],"img/pant-reebook.webp":[541,1000],"img/pollera-adidas.webp":[1000,656],"img/gafas-blancas.webp":[1000,436],"img/chomba-blanca-adidas-back.webp":[908,1000],"revista/tapa.jpg":[1290,1825],"revista/contratapa.jpg":[1290,1825]};
 // prendas vendidas: siguen en el catálogo, pero al abrirlas dice VENDIDO y no se pueden consultar ni agregar al carrito
 var SOLD = ['tabisblancas', 'tabisnegras', 'remegris', 'gafas'];
 // precios de venta y medidas en plano (cm), tomados de la planilla "Joven Hueso Finanzas" (Drive)
@@ -490,6 +495,10 @@ window.addEventListener('scroll', placePizarras, { passive: true });
 var hero = document.getElementById('hero');
 function heroState() { document.body.classList.toggle('on-hero', hero.getBoundingClientRect().bottom > window.innerHeight * 0.35); }
 window.addEventListener('scroll', heroState, { passive: true }); heroState();
+// logo: baja junto con la pantalla hasta llegar a su lugar en el catálogo y desde ahí sube con la página
+var floatLogo = document.getElementById('floatLogo'), logoSlot = document.getElementById('logoSlot');
+function placeLogo() { floatLogo.style.top = Math.min(16, logoSlot.getBoundingClientRect().top) + 'px'; }
+window.addEventListener('scroll', placeLogo, { passive: true }); window.addEventListener('resize', placeLogo); placeLogo();
 document.getElementById('heroDown').addEventListener('click', function () { document.getElementById('top').scrollIntoView({ behavior: 'smooth' }); });
 // portada: las editoriales se deslizan de derecha a izquierda solas; también se arrastran con el mouse o el dedo
 var hTrack = document.getElementById('heroTrack'), hN = 3, hCur = 0, hTimer = null, EASE = 'transform .9s cubic-bezier(.65,0,.35,1)';
@@ -620,30 +629,36 @@ cards[id].classList.add('jh-empty'); cards[id].tabIndex = -1;
 loadMask(x.f); if (x.b) loadMask(x.b);
 return el;
 }
-function returnHome(id, animate) {
+// vuelta a su lugar: la prenda suelta vuela de forma continua hasta su foto en la grilla y recién al llegar se intercambia por el recuadro
+// (antes se movía el recuadro entero con su borde y su texto, y por eso se veía cortado)
+function flyHome(id, animate, delay) {
 var el = loose[id], card = cards[id];
 if (!el) return;
+delete loose[id]; delete free[id];
 var from = el.getBoundingClientRect();
-el.remove(); delete loose[id]; delete free[id];
+var done = function () {
+el.remove();
 card.classList.remove('jh-empty', 'jh-home', 'hot'); card.tabIndex = 0;
-if (animate && card.animate) {
+// el borde y el texto del recuadro aparecen suave, la prenda ya está en su lugar
+if (animate && card.animate) card.querySelectorAll('.jh-face').forEach(function (fc) { fc.animate([{ borderColor: 'rgba(200,200,200,0)' }, { borderColor: '#C8C8C8' }], { duration: 300, easing: 'ease-out' }); });
+};
+if (!animate || !el.animate || !from.width) { done(); return; }
+card.classList.add('jh-empty'); card.classList.remove('jh-home', 'hot');
 var im = card.querySelector(flipped && BY[id].b ? '.jh-back img' : '.jh-face:not(.jh-back) img');
 var to = im.getBoundingClientRect();
-card.animate([{ transform: 'translate(' + (from.left - to.left) + 'px,' + (from.top - to.top) + 'px)' }, { transform: 'translate(0,0)' }], { duration: 520, easing: 'cubic-bezier(.2,.7,.2,1)' });
+var dx = to.left - from.left, dy = to.top - from.top, sc = from.width ? to.width / from.width : 1;
+var dist = Math.sqrt(dx * dx + dy * dy);
+el.classList.remove('jh-lifted'); el.style.pointerEvents = 'none'; el.style.transformOrigin = '0 0';
+var a = el.animate([
+{ transform: 'translate(0,0) scale(1)' },
+{ transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + sc + ')' }
+], { duration: Math.min(900, 480 + dist * 0.35), delay: delay || 0, easing: 'cubic-bezier(.33,0,.15,1)', fill: 'forwards' });
+a.onfinish = done;
 }
-}
+function returnHome(id, animate) { flyHome(id, animate, 0); }
 function clearLoose(animate) {
-Object.keys(loose).forEach(function (id) {
-var el = loose[id], card = cards[id];
-var from = el.getBoundingClientRect();
-el.remove(); delete loose[id]; delete free[id];
-card.classList.remove('jh-empty'); card.tabIndex = 0;
-if (animate && card.animate) {
-var im = card.querySelector(flipped && BY[id].b ? '.jh-back img' : '.jh-face:not(.jh-back) img');
-var to = im.getBoundingClientRect();
-card.animate([{ transform: 'translate(' + (from.left - to.left) + 'px,' + (from.top - to.top) + 'px)' }, { transform: 'translate(0,0)' }], { duration: 520, easing: 'cubic-bezier(.2,.7,.2,1)' });
-}
-});
+// todas vuelven en una ola corta, una detrás de otra
+Object.keys(loose).forEach(function (id, n) { flyHome(id, animate, n * 45); });
 }
 document.getElementById('resetBtn').addEventListener('click', function () { clearLoose(true); if (typeof updateTray === 'function') updateTray(); });
 
@@ -759,7 +774,7 @@ var W = 1080, H = 1920, M = 90, TOP = 110;
 var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
 var cx = cv.getContext('2d');
 cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H);
-var logo = document.querySelector('header .logo img');
+var logo = document.querySelector('#floatLogo img');
 
 var ids = lookIds().sort(function (a, b) { return (+loose[a].style.zIndex || 0) - (+loose[b].style.zIndex || 0); });
 var parts = ids.map(function (id) {
@@ -934,7 +949,7 @@ window.addEventListener('pointercancel', up);
 var ov = document.getElementById('ov'), ovBox = document.getElementById('ovBox'), cur = null, side = 0;
 function renderOv() {
 var x = BY[cur], imgs = x.pages || (x.b ? [x.f, x.b] : [x.f]), n = imgs.length, k = ((side % n) + n) % n;
-ovBox.className = 'jh-ov-box' + (x.revista ? ' tall' : '') + (x.revista && k > 0 ? ' wide' : '');
+ovBox.className = 'jh-ov-box' + (x.revista ? ' tall' : '') + (x.revista && k > 0 && k < n - 1 ? ' wide' : '');
 ovBox.innerHTML = '<img src="' + imgs[k] + '" alt="' + esc(x.name + ' by ' + x.brand) + '">';
 document.getElementById('ovPrev').hidden = n < 2; document.getElementById('ovNext').hidden = n < 2;
 var pad = function (v) { return (v < 10 ? '0' : '') + v; };
@@ -947,27 +962,25 @@ ov.setAttribute('aria-label', x.name + ' by ' + x.brand + (x.sold ? ' — vendid
 ov.classList.toggle('is-sold', !!x.sold);
 syncAddBtn();
 }
-function openItem(id) { cur = id; side = flipped && BY[id].b && !BY[id].pages ? 1 : 0; // si el catálogo está dado vuelta, se abre mostrando la espalda
+function openItem(id) { cur = id; side = flipped && BY[id].b ? (BY[id].pages ? BY[id].pages.length - 1 : 1) : 0; // si el catálogo está dado vuelta, se abre mostrando la espalda (la revista, en la contratapa)
  renderOv(); ov.classList.add('open'); document.getElementById('ovClose').focus(); }
 document.getElementById('ovClose').addEventListener('click', function () { ov.classList.remove('open'); if (cards[cur]) cards[cur].focus(); });
 function stepOv(d) {
 var x = BY[cur], n = (x.pages || (x.b ? [x.f, x.b] : [x.f])).length;
 if (n < 2) { var i0 = ovBox.querySelector('img'); if (i0) i0.style.transform = ''; return; }
-// deslizamiento real: la imagen actual sale hacia un lado y la nueva entra desde el otro
+// deslizamiento dentro del recuadro (entre las flechas): la imagen actual sale por un costado y la nueva entra por el otro, recortadas por el recuadro
 var old = ovBox.querySelector('img'), r = old && old.getBoundingClientRect(), from = (arguments[1] || 0);
-var ghost = null;
-if (old && r.width) {
-ghost = old.cloneNode(); ghost.removeAttribute('class');
-ghost.style.cssText = 'position:fixed;left:' + r.left + 'px;top:' + r.top + 'px;width:' + r.width + 'px;height:' + r.height + 'px;margin:0;max-width:none;max-height:none;pointer-events:none;z-index:1;opacity:' + getComputedStyle(old).opacity;
-ov.appendChild(ghost);
-}
+var gw = r && r.width, gh = r && r.height, gsrc = old && old.getAttribute('src');
 side += d; renderOv();
-var im = ovBox.querySelector('img'), W = Math.min(window.innerWidth, 1400) * 0.75, T = { duration: 480, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'both' };
-if (ghost && ghost.animate) {
-var g = ghost.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(' + (-d * W) + 'px)' }], T);
-g.onfinish = function () { ghost.remove(); };
-} else if (ghost) ghost.remove();
+var im = ovBox.querySelector('img'), W = ovBox.clientWidth + 24, T = { duration: 520, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'both' };
 if (im) im.style.animation = 'none'; // sin el zoom de apertura al pasar
+if (gw && ovBox.animate) {
+var ghost = document.createElement('img'); ghost.src = gsrc; ghost.alt = '';
+ghost.style.cssText = 'position:absolute;left:50%;top:50%;width:' + gw + 'px;height:' + gh + 'px;margin:' + (-gh / 2) + 'px 0 0 ' + (-gw / 2) + 'px;max-width:none;max-height:none;pointer-events:none;animation:none';
+ovBox.appendChild(ghost);
+var g = ghost.animate([{ transform: 'translateX(' + from + 'px)' }, { transform: 'translateX(' + (-d * W) + 'px)' }], T);
+g.onfinish = function () { ghost.remove(); };
+}
 if (im && im.animate) { var a = im.animate([{ transform: 'translateX(' + (d * W + from) + 'px)' }, { transform: 'translateX(0)' }], T); a.onfinish = function () { a.cancel(); }; }
 }
 document.getElementById('ovPrev').addEventListener('click', function () { stepOv(-1); });
