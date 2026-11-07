@@ -12,10 +12,10 @@ html,body{overflow-x:hidden}
 body{margin:0;background:#fff;color:#111;font-family:Archivo,'Helvetica Neue',Arial,sans-serif}
 a{color:#111}a:hover{color:#555}
 .jh-hero{position:relative;height:100vh;height:100svh;overflow:hidden;background:#fff}
-/* un solo logo: queda fijo arriba mientras se ve la portada y se apoya en el inicio del catálogo */
-.jh-float-logo{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:4;will-change:top}
-.jh-float-logo img{height:40px;width:auto;display:block}
-.jh-logo-slot{display:block;width:30px;height:40px}
+.jh-hero-logo{position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:2}
+.jh-hero-logo img,header .logo img{height:40px;width:auto;display:block}
+/* el logo del catálogo aparece de a poco a medida que se baja desde la portada */
+header .logo{opacity:0;will-change:opacity}
 .jh-hero-track{position:absolute;inset:0;display:flex;will-change:transform;cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none}
 .jh-hero-track.drag{cursor:grabbing}
 .jh-hero-slide{flex:0 0 100%;height:100%;display:flex;align-items:center;justify-content:center}
@@ -200,8 +200,8 @@ main{padding-left:16px}
 </style>
 </head>
 <body>
-<a class="jh-float-logo" id="floatLogo" href="https://www.instagram.com/jovenhueso.revista/" target="_blank" rel="noopener" aria-label="Instagram de JOVENHUESO"><img src="img/logo.png" alt="JOVENHUESO"></a>
 <section class="jh-hero" id="hero" aria-label="Editorial JOVENHUESO Vol. 01">
+<a class="jh-hero-logo" href="https://www.instagram.com/jovenhueso.revista/" target="_blank" rel="noopener" aria-label="Instagram de JOVENHUESO"><img src="img/logo.png" alt="JOVENHUESO"></a>
 <div class="jh-hero-track" id="heroTrack">
 <div class="jh-hero-slide"><img class="jh-hero-img" src="revista/rev-03.jpg" alt="Editorial JOVENHUESO Vol. 01 · Look Inter" fetchpriority="high" draggable="false"></div>
 <div class="jh-hero-slide"><img class="jh-hero-img" src="revista/rev-06.jpg" alt="Editorial JOVENHUESO Vol. 01 · Look negro" draggable="false"></div>
@@ -212,7 +212,7 @@ main{padding-left:16px}
 </section>
 <header id="top">
 <span></span>
-<span class="jh-logo-slot" id="logoSlot" aria-hidden="true"></span>
+<a class="logo" id="catLogo" href="https://www.instagram.com/jovenhueso.revista/" target="_blank" rel="noopener" aria-label="Instagram de JOVENHUESO"><img src="img/logo.png" alt="JOVENHUESO"></a>
 <div class="tools">
 <button type="button" class="jh-icon" id="flipBtn" aria-pressed="false" aria-label="Dar vuelta las prendas" title="Dar vuelta">
 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 0 1 14.6-5.9L20.5 8.5"/><path d="M20.5 3.5v5h-5"/><path d="M20.5 12a8.5 8.5 0 0 1-14.6 5.9L3.5 15.5"/><path d="M3.5 20.5v-5h5"/></svg>
@@ -495,9 +495,13 @@ window.addEventListener('scroll', placePizarras, { passive: true });
 var hero = document.getElementById('hero');
 function heroState() { document.body.classList.toggle('on-hero', hero.getBoundingClientRect().bottom > window.innerHeight * 0.35); }
 window.addEventListener('scroll', heroState, { passive: true }); heroState();
-// logo: baja junto con la pantalla hasta llegar a su lugar en el catálogo y desde ahí sube con la página
-var floatLogo = document.getElementById('floatLogo'), logoSlot = document.getElementById('logoSlot');
-function placeLogo() { floatLogo.style.top = Math.min(16, logoSlot.getBoundingClientRect().top) + 'px'; }
+// logo del catálogo: invisible en la portada y aparece progresivamente mientras el catálogo sube hasta arriba
+var catLogo = document.getElementById('catLogo');
+function placeLogo() {
+var t = catLogo.getBoundingClientRect().top, vh = window.innerHeight;
+var o = Math.max(0, Math.min(1, (vh * 0.55 - t) / (vh * 0.55 - 16)));
+catLogo.style.opacity = o.toFixed(3);
+}
 window.addEventListener('scroll', placeLogo, { passive: true }); window.addEventListener('resize', placeLogo); placeLogo();
 document.getElementById('heroDown').addEventListener('click', function () { document.getElementById('top').scrollIntoView({ behavior: 'smooth' }); });
 // portada: las editoriales se deslizan de derecha a izquierda solas; también se arrastran con el mouse o el dedo
@@ -774,7 +778,7 @@ var W = 1080, H = 1920, M = 90, TOP = 110;
 var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
 var cx = cv.getContext('2d');
 cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H);
-var logo = document.querySelector('#floatLogo img');
+var logo = document.querySelector('#catLogo img');
 
 var ids = lookIds().sort(function (a, b) { return (+loose[a].style.zIndex || 0) - (+loose[b].style.zIndex || 0); });
 var parts = ids.map(function (id) {
