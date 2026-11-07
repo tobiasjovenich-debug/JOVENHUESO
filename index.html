@@ -866,22 +866,28 @@ try { cx.drawImage(q.im, ox + (q.r.left - x0) * k, oy + (q.r.top - y0) * k, q.r.
 if (logo && logo.complete) { var lh = 52, lw = lh * logo.naturalWidth / logo.naturalHeight; cx.drawImage(logo, W - 56 - lw, H - 56 - lh, lw, lh); }
 cv.toBlob(function (blob) {
 if (!blob) return;
+// el botón confirma que la foto quedó guardada (con un tick) y después vuelve a su texto
+var markSaved = function () {
+var b = document.getElementById('lookPhoto'), txt = b.dataset.txt || (b.dataset.txt = b.textContent);
+b.textContent = 'FOTO GUARDADA ✓'; b.classList.add('jh-done'); clearTimeout(b._t);
+b._t = setTimeout(function () { b.textContent = txt; b.classList.remove('jh-done'); }, 2600);
+};
 if (handle) {
 handle.createWritable().then(function (w) { return w.write(blob).then(function () { return w.close(); }); })
-.then(function () { toast('FOTO DEL LOOK GUARDADA'); }).catch(function () { toast('NO SE PUDO GUARDAR LA FOTO'); });
+.then(function () { markSaved(); toast('FOTO DEL LOOK GUARDADA'); }).catch(function () { toast('NO SE PUDO GUARDAR LA FOTO'); });
 return;
 }
 if (!isMobile()) {
 var d = document.createElement('a'); d.href = URL.createObjectURL(blob); d.download = 'jovenhueso-look.png';
-document.body.appendChild(d); d.click(); setTimeout(function () { URL.revokeObjectURL(d.href); d.remove(); }, 1000);
+document.body.appendChild(d); d.click(); setTimeout(function () { URL.revokeObjectURL(d.href); d.remove(); }, 1000); markSaved();
 return;
 }
 var file = new File([blob], 'jovenhueso-look.png', { type: 'image/png' });
 if (navigator.canShare && navigator.canShare({ files: [file] })) {
-navigator.share({ files: [file], title: 'Mi look JOVENHUESO' }).catch(function () {});
+navigator.share({ files: [file], title: 'Mi look JOVENHUESO' }).then(markSaved).catch(function () {});
 } else {
 var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'jovenhueso-look.png';
-document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000); markSaved();
 }
 }, 'image/png');
 }
