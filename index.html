@@ -1029,7 +1029,7 @@ var ov = document.getElementById('ov'), ovBox = document.getElementById('ovBox')
 function renderOv() {
 var x = BY[cur], imgs = x.pages || (x.b ? [x.f, x.b] : [x.f]), n = imgs.length, k = ((side % n) + n) % n;
 ovBox.className = 'jh-ov-box' + (x.revista ? ' tall' : '') + (x.revista && k > 0 && k < n - 1 ? ' wide' : '');
-ovBox.innerHTML = '<img src="' + imgs[k] + '" alt="' + esc(x.name + ' by ' + x.brand) + '">';
+ovBox.innerHTML = '<img src="' + imgs[k] + '" alt="' + esc(x.name + ' by ' + x.brand) + '" draggable="false">';
 document.getElementById('ovPrev').hidden = n < 2; document.getElementById('ovNext').hidden = n < 2;
 var pad = function (v) { return (v < 10 ? '0' : '') + v; };
 document.getElementById('ovCount').textContent = x.revista ? pad(k + 1) + ' / ' + pad(n) : '';
@@ -1078,6 +1078,8 @@ document.getElementById('ovNext').addEventListener('click', function () { stepOv
 // deslizar el dedo a la derecha o izquierda sobre la prenda cambia entre frente y espalda (o pasa las hojas de la revista)
 (function () {
 var stage = document.querySelector('.jh-ov-stage'), sw = null;
+// sin esto, al arrastrar la foto con el mouse el navegador la "agarra" (arrastrar y soltar) y cancela el deslizamiento
+stage.addEventListener('dragstart', function (e) { e.preventDefault(); });
 stage.addEventListener('pointerdown', function (e) {
 if (e.target.closest('.jh-arrow')) return;
 sw = { x0: e.clientX, y0: e.clientY, dx: 0 };
