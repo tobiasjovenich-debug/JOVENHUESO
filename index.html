@@ -741,12 +741,13 @@ function isMobile() { return cols === 6; }
 function setLookFull(full) {
 document.body.classList.toggle('look-full', full);
 if (full) document.body.classList.add('look-open');
-updateTray(); followTray(450);
+updateTray(); followTray(450, true);
 }
 function setLookOpen(open) {
+var was = document.body.classList.contains('look-open');
 document.body.classList.toggle('look-open', open);
 if (!open) document.body.classList.remove('look-full');
-if (open) followTray(450);
+if (open) followTray(450, was);
 trayBar.setAttribute('aria-expanded', open ? 'true' : 'false');
 }
 function lookIds() {
@@ -917,15 +918,26 @@ f.x = nx; f.y = ny; el.style.left = nx + 'px'; el.style.top = ny + 'px';
 f.rx = nx - a.left; f.ry = ny - a.top; // posición dentro de la pizarra
 }
 // reubica las prendas según la pizarra (su alto cambia cuando el navegador del celular muestra u oculta su barra)
-function syncTray() {
+// center: el look entero (como grupo, sin desarmarlo) queda centrado en la pizarra; se usa al agrandar o achicar la bandeja
+function syncTray(center) {
 var a;
 if (isMobile()) { if (!document.body.classList.contains('look-open')) return; a = trayArea.getBoundingClientRect(); }
 else { if (!pizL.classList.contains('on')) return; a = pizL.getBoundingClientRect(); }
-Object.keys(loose).forEach(function (id) {
+var ids = Object.keys(loose).filter(function (id) { return free[id].rx !== undefined && !(p && p.active && p.id === id); });
+var dx = 0, dy = 0;
+if (center && ids.length) {
+var x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+ids.forEach(function (id) { var f = free[id]; x0 = Math.min(x0, f.rx); y0 = Math.min(y0, f.ry); x1 = Math.max(x1, f.rx + f.w); y1 = Math.max(y1, f.ry + f.h); });
+var gw = x1 - x0, gh = y1 - y0;
+dx = gw < a.width ? (a.width - gw) / 2 - x0 : 6 - x0;
+dy = gh < a.height ? (a.height - gh) / 2 - y0 : 6 - y0;
+}
+ids.forEach(function (id) {
 var f = free[id], el = loose[id];
-if (f.rx === undefined || (p && p.active && p.id === id)) return;
-f.x = a.left + f.rx; f.y = Math.min(a.top + f.ry, a.bottom - f.h * 0.5); el.style.left = f.x + 'px'; el.style.top = f.y + 'px';
+f.x = a.left + f.rx + dx; f.y = center ? a.top + f.ry + dy : Math.min(a.top + f.ry, a.bottom - f.h * 0.5);
+el.style.left = f.x + 'px'; el.style.top = f.y + 'px';
 });
+return { dx: dx, dy: dy, ids: ids };
 }
 // compu: al soltar una prenda sobre la pizarra queda anclada a ella; fuera de la pizarra queda fija en la pantalla
 function anchorToPizarra(id) {
@@ -934,9 +946,13 @@ var pr = pizL.getBoundingClientRect(), cx = f.x + f.w / 2, cy = f.y + f.h / 2;
 if (pizL.classList.contains('on') && cx >= pr.left && cx <= pr.right && cy >= pr.top && cy <= pr.bottom) { f.rx = f.x - pr.left; f.ry = f.y - pr.top; }
 else { delete f.rx; delete f.ry; }
 }
-function followTray(ms) {
+function followTray(ms, center) {
 var end = Date.now() + ms;
-(function step() { syncTray(); if (Date.now() < end) requestAnimationFrame(step); })();
+(function step() {
+var r = syncTray(center);
+if (Date.now() < end) requestAnimationFrame(step);
+else if (center && r) r.ids.forEach(function (id) { free[id].rx += r.dx; free[id].ry += r.dy; }); // queda centrado para lo que sigue
+})();
 }
 window.addEventListener('resize', function () { syncTray(); });
 window.addEventListener('scroll', function () { syncTray(); }, { passive: true });
