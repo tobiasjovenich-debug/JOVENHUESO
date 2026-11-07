@@ -713,24 +713,39 @@ function clearLoose(animate) {
 // todas vuelven en una ola corta, una detrás de otra
 Object.keys(loose).forEach(function (id, n) { flyHome(id, animate, n * 45); });
 }
-// ---- música: el navegador no deja que suene sola, arranca al tocar el parlante; los temas pasan solos en orden mezclado
+// ---- música: suena "siempre", como una radio. Desde que se abre la página corre un reloj con la lista mezclada;
+// al tocar el parlante se escucha justo la parte que iba sonando en ese momento (no arranca el tema de cero).
+// Mientras está muteada no se descarga nada: solo corre el reloj. (Los navegadores no dejan que suene sin un toque.)
 (function () {
 var TRACKS = [
-{ src: 'musica/01-pumpin.mp3', t: "Pumpin'", a: 'Across Boundaries, Chris Stussy & Locklead' },
-{ src: 'musica/02-je-suis.mp3', t: 'Je Suis', a: 'Aline Umber & Maxime dB' },
-{ src: 'musica/03-dance-of-the-ants.mp3', t: "Dance of the Ants (Chris Gerber's Bounce Mix)", a: 'aljalj' },
-{ src: 'musica/04-vocal-value.mp3', t: 'Vocal Value', a: 'Juan Alarma' },
-{ src: 'musica/05-mind-over-matter.mp3', t: 'Mind Over Matter', a: 'Criminal System' }
+{ src: 'musica/01-pumpin.mp3', d: 334.26, t: "Pumpin'", a: 'Across Boundaries, Chris Stussy & Locklead' },
+{ src: 'musica/02-je-suis.mp3', d: 285.05, t: 'Je Suis', a: 'Aline Umber & Maxime dB' },
+{ src: 'musica/03-dance-of-the-ants.mp3', d: 394.16, t: "Dance of the Ants (Chris Gerber's Bounce Mix)", a: 'aljalj' },
+{ src: 'musica/04-vocal-value.mp3', d: 470.05, t: 'Vocal Value', a: 'Juan Alarma' },
+{ src: 'musica/05-mind-over-matter.mp3', d: 246.07, t: 'Mind Over Matter', a: 'Criminal System' }
 ];
 for (var i = TRACKS.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = TRACKS[i]; TRACKS[i] = TRACKS[j]; TRACKS[j] = t; }
-var btn = document.getElementById('soundBtn'), au = new Audio(), n = 0, on = false, fade = null;
+var TOTAL = TRACKS.reduce(function (s, x) { return s + x.d; }, 0), T0 = Date.now();
+var btn = document.getElementById('soundBtn'), au = new Audio(), on = false, fade = null, curN = -1;
 au.preload = 'none';
-function load(k) {
-n = (k + TRACKS.length) % TRACKS.length; var tr = TRACKS[n];
-au.src = tr.src;
-btn.title = 'Sonando: ' + tr.t + ' — ' + tr.a;
+function now() { // qué tema y en qué segundo "está sonando" ahora
+var e = ((Date.now() - T0) / 1000) % TOTAL, n = 0;
+while (e >= TRACKS[n].d) { e -= TRACKS[n].d; n++; }
+return { n: n, at: e };
+}
+function info(n) {
+var tr = TRACKS[n]; btn.title = 'Sonando: ' + tr.t + ' — ' + tr.a;
 if ('mediaSession' in navigator && window.MediaMetadata) navigator.mediaSession.metadata = new MediaMetadata({ title: tr.t, artist: tr.a, album: 'JOVENHUESO' });
 }
+function sync() { // ponerse al día con el reloj y sonar
+var p = now();
+if (p.n !== curN || !au.src) { curN = p.n; au.src = TRACKS[p.n].src; }
+info(p.n);
+var seek = function () { try { au.currentTime = now().at; } catch (e) {} };
+if (au.readyState >= 1) seek(); else au.addEventListener('loadedmetadata', seek, { once: true });
+return au.play();
+}
+setInterval(function () { if (!on) info(now().n); }, 5000); info(now().n);
 function ramp(to, ms, done) {
 clearInterval(fade); var from = au.volume, t0 = Date.now();
 fade = setInterval(function () { var k = Math.min(1, (Date.now() - t0) / ms); au.volume = from + (to - from) * k; if (k >= 1) { clearInterval(fade); if (done) done(); } }, 30);
@@ -738,13 +753,14 @@ fade = setInterval(function () { var k = Math.min(1, (Date.now() - t0) / ms); au
 function set(v) {
 on = v; btn.classList.toggle('jh-snd-on', on); btn.setAttribute('aria-pressed', on ? 'true' : 'false');
 btn.setAttribute('aria-label', on ? 'Apagar música' : 'Poner música');
-if (on) { if (!au.src) load(0); au.volume = 0; var pr = au.play(); if (pr && pr.catch) pr.catch(function () { set(false); }); ramp(0.8, 900); }
-else ramp(0, 400, function () { au.pause(); });
+if (on) { au.volume = 0; var pr = sync(); if (pr && pr.catch) pr.catch(function () { set(false); }); ramp(0.8, 700); }
+else ramp(0, 350, function () { if (!on) au.pause(); });
 }
-au.addEventListener('ended', function () { load(n + 1); if (on) au.play(); });
-au.addEventListener('error', function () { if (on) { load(n + 1); au.play().catch(function () {}); } });
+au.addEventListener('ended', function () { if (on) sync(); });
+au.addEventListener('error', function () { if (on) { curN = -1; setTimeout(function () { if (on) sync().catch(function () {}); }, 1500); } });
 btn.addEventListener('click', function () { set(!on); });
-if ('mediaSession' in navigator) { try { navigator.mediaSession.setActionHandler('nexttrack', function () { load(n + 1); if (on) au.play(); }); } catch (err) {} }
+// si el celular pausa el audio (llamada, otra app) y vuelve, se pone al día con el reloj
+document.addEventListener('visibilitychange', function () { if (!document.hidden && on && au.paused) sync().catch(function () {}); });
 })();
 document.getElementById('resetBtn').addEventListener('click', function () { clearLoose(true); if (typeof updateTray === 'function') updateTray(); });
 
