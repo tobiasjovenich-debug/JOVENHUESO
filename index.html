@@ -467,11 +467,12 @@ function visibleIds() { return hideSold ? DEFAULT_ORDER.filter(function (id) { r
 function newOrder(cols) { var v = visibleIds(); return randomOrder(cols, v) || looseOrder(cols, v); }
 // si no hay un armado exacto: se prueban órdenes al azar y se elige uno sin huecos adentro
 // (las celdas que sobran quedan solo en el borde de abajo) y lo más bajo posible
-function looseOrder(cols, ids) {
+function looseOrder(cols, ids, first) {
 var best = null, bestScore = Infinity;
 for (var t = 0; t < 2500; t++) {
 var o = ids.slice();
-for (var i = o.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = o[i]; o[i] = o[j]; o[j] = x; }
+if (t === 0 && first) o = first.slice(); // primero se prueba manteniendo el orden actual (las prendas se mueven lo mínimo)
+else for (var i = o.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = o[i]; o[i] = o[j]; o[j] = x; }
 var g = {}, maxR = 0;
 o.forEach(function (id) {
 var w = Math.min(cols, BY[id].w), h = BY[id].h, r = 0, c, ok = false;
@@ -483,6 +484,7 @@ maxR = Math.max(maxR, r + h);
 var holes = 0;
 for (var c2 = 0; c2 < cols; c2++) { var below = false; for (var r2 = maxR - 1; r2 >= 0; r2--) { if (g[r2 * 64 + c2]) below = true; else if (below) holes++; } }
 var score = holes * 1000 + maxR;
+if (t === 0 && first && !holes && maxR <= Math.ceil(ids.reduce(function (a, id) { return a + Math.min(cols, BY[id].w) * BY[id].h; }, 0) / cols) + 1) return o;
 if (score < bestScore) { bestScore = score; best = o; if (!holes && maxR * cols - ids.reduce(function (a, id) { return a + Math.min(cols, BY[id].w) * BY[id].h; }, 0) < cols) break; }
 }
 return best;
@@ -548,19 +550,48 @@ var pl = pack(cols);
 Object.keys(cards).forEach(function (id) { cards[id].classList.toggle('jh-hidden', ORDER.indexOf(id) < 0); });
 ORDER.forEach(function (id) { var p = pl[id]; cards[id].style.gridColumn = (p.c + 1) + ' / span ' + p.w; cards[id].style.gridRow = (p.r + 1) + ' / span ' + p.h; });
 }
-// rearmado animado: cada prenda se desliza de su lugar viejo al nuevo; las que aparecen, aparecen suave
+// rearmado animado y fluido:
+// 1) las vendidas se desvanecen, 2) cada prenda se desliza a su lugar nuevo y su foto cambia de tamaño de forma continua
+// (antes la foto saltaba de tamaño de golpe), 3) las que vuelven aparecen suave
+var soldBusy = false;
+function frontImg(id) { return cards[id].querySelector('.jh-face:not(.jh-back) .jh-img img'); }
 function setHideSold(v) {
+if (soldBusy) return;
 hideSold = v; try { localStorage.setItem('jh-hide-sold', v ? '1' : '0'); } catch (err) {}
 var b = document.getElementById('soldBtn');
 b.classList.toggle('jh-sold-on', v); b.setAttribute('aria-pressed', v ? 'true' : 'false');
 b.setAttribute('aria-label', v ? 'Mostrar las prendas vendidas' : 'Ocultar las prendas vendidas'); b.title = v ? 'Mostrar vendidos' : 'Ocultar vendidos';
-var before = {}; Object.keys(cards).forEach(function (id) { if (!cards[id].classList.contains('jh-hidden')) before[id] = cards[id].getBoundingClientRect(); });
-ORDER = newOrder(cols); placeCards(); setRows(); applyScale(); placePizarras();
+var before = {};
+Object.keys(cards).forEach(function (id) {
+if (cards[id].classList.contains('jh-hidden')) return;
+before[id] = { c: cards[id].getBoundingClientRect(), i: frontImg(id).getBoundingClientRect() };
+});
+var leaving = v ? SOLD.filter(function (id) { return before[id] && cards[id].animate; }) : [];
+soldBusy = true;
+var regrid = function () {
+// al ocultar: se mantiene el orden de lo que queda si encaja sin huecos; si no, se busca otro armado
+ORDER = (v && looseOrder(cols, visibleIds(), ORDER.filter(function (id) { return SOLD.indexOf(id) < 0; }))) || newOrder(cols);
+placeCards(); setRows(); applyScale(); placePizarras();
+var T = { duration: 720, easing: 'cubic-bezier(.65,0,.35,1)' }, n = 0;
 ORDER.forEach(function (id) {
-var el = cards[id], a = before[id], r = el.getBoundingClientRect();
+var el = cards[id], a = before[id];
 if (!el.animate) return;
-if (a) { var dx = a.left - r.left, dy = a.top - r.top; if (dx || dy) el.animate([{ transform: 'translate(' + dx + 'px,' + dy + 'px)' }, { transform: 'none' }], { duration: 650, easing: 'cubic-bezier(.65,0,.35,1)' }); }
-else el.animate([{ opacity: 0, transform: 'scale(.92)' }, { opacity: 1, transform: 'none' }], { duration: 450, delay: 250, easing: 'ease-out', fill: 'backwards' });
+if (a) {
+var r = el.getBoundingClientRect(), dx = a.c.left - r.left, dy = a.c.top - r.top;
+if (Math.abs(dx) > .5 || Math.abs(dy) > .5) el.animate([{ transform: 'translate(' + dx + 'px,' + dy + 'px)' }, { transform: 'none' }], T);
+var im = frontImg(id), ri = im.getBoundingClientRect();
+if (ri.width && Math.abs(a.i.width - ri.width) > .5) im.animate([{ transform: 'scale(' + (a.i.width / ri.width) + ')' }, { transform: 'none' }], T);
+} else {
+el.animate([{ opacity: 0, transform: 'scale(.94)' }, { opacity: 1, transform: 'none' }], { duration: 480, delay: 320 + (n++) * 35, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'backwards' });
+}
+});
+setTimeout(function () { soldBusy = false; }, 760);
+};
+if (!leaving.length) { regrid(); return; }
+var left = leaving.length;
+leaving.forEach(function (id) {
+var an = cards[id].animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.94)' }], { duration: 240, easing: 'ease-in', fill: 'forwards' });
+an.onfinish = function () { if (--left === 0) { regrid(); leaving.forEach(function (i) { cards[i].getAnimations().forEach(function (x) { x.cancel(); }); }); } };
 });
 }
 document.getElementById('soldBtn').addEventListener('click', function () { setHideSold(!hideSold); });
