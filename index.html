@@ -464,7 +464,29 @@ return null;
 // ocultar vendidos: el catálogo se rearma solo con lo que está a la venta (la elección se recuerda en este navegador)
 var hideSold = false; try { hideSold = localStorage.getItem('jh-hide-sold') === '1'; } catch (err) {}
 function visibleIds() { return hideSold ? DEFAULT_ORDER.filter(function (id) { return SOLD.indexOf(id) < 0; }) : DEFAULT_ORDER; }
-function newOrder(cols) { var v = visibleIds(); return randomOrder(cols, v) || v.slice(); }
+function newOrder(cols) { var v = visibleIds(); return randomOrder(cols, v) || looseOrder(cols, v); }
+// si no hay un armado exacto: se prueban órdenes al azar y se elige uno sin huecos adentro
+// (las celdas que sobran quedan solo en el borde de abajo) y lo más bajo posible
+function looseOrder(cols, ids) {
+var best = null, bestScore = Infinity;
+for (var t = 0; t < 2500; t++) {
+var o = ids.slice();
+for (var i = o.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = o[i]; o[i] = o[j]; o[j] = x; }
+var g = {}, maxR = 0;
+o.forEach(function (id) {
+var w = Math.min(cols, BY[id].w), h = BY[id].h, r = 0, c, ok = false;
+var fits = function (r, c) { for (var y = 0; y < h; y++) for (var k = 0; k < w; k++) if (g[(r + y) * 64 + c + k]) return false; return true; };
+while (!ok) { for (c = 0; c <= cols - w; c++) if (fits(r, c)) { ok = true; break; } if (!ok) r++; }
+for (var y = 0; y < h; y++) for (var k = 0; k < w; k++) g[(r + y) * 64 + c + k] = 1;
+maxR = Math.max(maxR, r + h);
+});
+var holes = 0;
+for (var c2 = 0; c2 < cols; c2++) { var below = false; for (var r2 = maxR - 1; r2 >= 0; r2--) { if (g[r2 * 64 + c2]) below = true; else if (below) holes++; } }
+var score = holes * 1000 + maxR;
+if (score < bestScore) { bestScore = score; best = o; if (!holes && maxR * cols - ids.reduce(function (a, id) { return a + Math.min(cols, BY[id].w) * BY[id].h; }, 0) < cols) break; }
+}
+return best;
+}
 var ORDER = newOrder(window.innerWidth <= 820 ? 6 : 12);
 
 var board = document.getElementById('board'), grid = document.getElementById('grid');
